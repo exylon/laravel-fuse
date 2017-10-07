@@ -17,6 +17,7 @@ abstract class GeneratorCommand extends \Illuminate\Console\GeneratorCommand
 
     /**
      * @param $stub
+     *
      * @return string
      */
     protected abstract function replace(&$stub);

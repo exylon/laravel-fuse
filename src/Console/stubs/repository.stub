@@ -4,11 +4,7 @@ namespace DummyNamespace;
 
 use DummyRootNamespaceModels\DummyModel;
 
-class DummyClass extends Repository
+interface DummyClass extends \Exylon\Fuse\Contracts\Repository
 {
-
-    public function __construct()
-    {
-        parent::__construct(new DummyModel());
-    }
+    //
 }

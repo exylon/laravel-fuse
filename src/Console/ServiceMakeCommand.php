@@ -28,7 +28,7 @@ class ServiceMakeCommand extends GeneratorCommand
      */
     protected function getStub()
     {
-        if($this->option('crud')){
+        if ($this->option('crud')) {
 
             return __DIR__ . '/stubs/service-crud.stub';
         }
@@ -37,6 +37,7 @@ class ServiceMakeCommand extends GeneratorCommand
 
     /**
      * @param $stub
+     *
      * @return string
      */
     protected function replace(&$stub)
@@ -45,19 +46,6 @@ class ServiceMakeCommand extends GeneratorCommand
             'DummyRepository'     => $this->qualifyRepository(),
             'dummyRepositoryName' => strtolower(str_plural($this->getBaseNameInput()))
         ], $stub);
-    }
-
-    protected function getDefaultNamespace($rootNamespace)
-    {
-        return $rootNamespace . '\Services';
-    }
-
-    protected function getOptions()
-    {
-        return array_merge(parent::getOptions(), [
-            ['repository', 'r', InputOption::VALUE_OPTIONAL, 'Provides the repository to be used by the service', null],
-            ['crud', null, InputOption::VALUE_NONE, 'Adds create, update and delete functions'],
-        ]);
     }
 
     protected function qualifyRepository()
@@ -72,5 +60,18 @@ class ServiceMakeCommand extends GeneratorCommand
     protected function getBaseNameInput()
     {
         return str_replace('Service', '', class_basename($this->qualifyClass($this->argument('name'))));
+    }
+
+    protected function getDefaultNamespace($rootNamespace)
+    {
+        return $rootNamespace . '\Services';
+    }
+
+    protected function getOptions()
+    {
+        return array_merge(parent::getOptions(), [
+            ['repository', 'r', InputOption::VALUE_OPTIONAL, 'Provides the repository to be used by the service', null],
+            ['crud', null, InputOption::VALUE_NONE, 'Adds create, update and delete functions'],
+        ]);
     }
 }

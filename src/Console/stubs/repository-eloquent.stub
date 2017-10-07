@@ -1,0 +1,16 @@
+<?php
+
+namespace DummyNamespace;
+
+use DummyRootNamespaceModels\DummyModel;
+
+use Exylon\Fuse\Repositories\Eloquent\Repository;
+
+class DummyClass extends Repository
+{
+
+    public function __construct()
+    {
+        parent::__construct(new DummyModel());
+    }
+}

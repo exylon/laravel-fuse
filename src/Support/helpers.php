@@ -4,6 +4,7 @@ if (!function_exists('str_replace_assoc')) {
     /**
      * @param array $pairs
      * @param       $subject
+     *
      * @return mixed
      */
     function str_replace_assoc(array $pairs, $subject)
@@ -31,6 +32,7 @@ if (!function_exists('random_hex_string')) {
      * Generates random hexadecimal string with specified length
      *
      * @param int $length
+     *
      * @return string
      */
     function random_hex_string($length)
@@ -49,6 +51,7 @@ if (!function_exists('random_int_string')) {
      * @param int    $length
      * @param int    $min
      * @param string $pad
+     *
      * @return string
      */
     function random_int_string($length, $min = 0, $pad = '0')
@@ -70,6 +73,7 @@ if (!function_exists('snake_to_title_case')) {
      * Convert snake-cased string to proper title-cased string
      *
      * @param string $str
+     *
      * @return string
      */
     function snake_to_title_case($str)
