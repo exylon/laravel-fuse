@@ -16,17 +16,6 @@ abstract class GeneratorCommand extends \Illuminate\Console\GeneratorCommand
     }
 
     /**
-     * Determine if the class already exists.
-     *
-     * @param  string  $rawName
-     * @return bool
-     */
-    protected function alreadyExists($rawName)
-    {
-        return class_exists($rawName);
-    }
-
-    /**
      * @param $stub
      *
      * @return string
