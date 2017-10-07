@@ -40,6 +40,9 @@ class SubscriberMakeCommand extends GeneratorCommand
     protected $listenSnippet = '$events->listen(\'DummyFullEvent\', \'DummyNamespace\DummyClass@onDummyEvent\');
         //LISTEN_BLOCK';
 
+    protected $fullEventSnippet = 'use DummyFullEvent;
+//USE_BLOCK';
+
     /**
      * Build the class with the given name.
      *
@@ -50,27 +53,21 @@ class SubscriberMakeCommand extends GeneratorCommand
     protected function buildClass($name)
     {
         $events = $this->option('event');
-        $stub = parent::buildClass($name);
+        $stub = $stub = $this->files->get($this->getStub());;
         foreach ($events as $event) {
             $event = $this->resolveEvent($event);
 
 
             $stub = str_replace_assoc([
                 '//METHOD_BLOCK' => $this->methodSnippet,
-                '//LISTEN_BLOCK' => $this->listenSnippet
+                '//LISTEN_BLOCK' => $this->listenSnippet,
+                '//USE_BLOCK' => $this->fullEventSnippet,
             ], $stub);
             $stub = str_replace(
                 'DummyEvent', class_basename($event), $stub
             );
-
             $stub = str_replace(
                 'DummyFullEvent', $event, $stub
-            );
-
-            $stub = str_replace(
-                ['DummyNamespace', 'DummyRootNamespace'],
-                [$this->getNamespace($name), $this->rootNamespace()],
-                $stub
             );
         }
 
@@ -78,7 +75,7 @@ class SubscriberMakeCommand extends GeneratorCommand
             '//METHOD_BLOCK' => '',
             '//LISTEN_BLOCK' => ''
         ], $stub);
-        return $stub;
+        return $this->replaceNamespace($stub, $name)->replaceClass($stub, $name);
 
     }
 

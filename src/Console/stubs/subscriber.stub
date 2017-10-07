@@ -2,8 +2,7 @@
 
 namespace DummyNamespace;
 
-use DummyFullEvent;
-
+//USE_BLOCK
 class DummyClass
 {
 
