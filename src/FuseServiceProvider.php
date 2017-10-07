@@ -30,6 +30,7 @@ class FuseServiceProvider extends ServiceProvider
         $this->commands([
             Console\SubscriberMakeCommand::class,
             Console\ServiceMakeCommand::class,
+            Console\RepositoryMakeCommand::class,
         ]);
     }
 }
