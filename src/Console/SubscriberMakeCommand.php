@@ -54,6 +54,7 @@ class SubscriberMakeCommand extends GeneratorCommand
         foreach ($events as $event) {
             $event = $this->resolveEvent($event);
 
+
             $stub = str_replace_assoc([
                 '//METHOD_BLOCK' => $this->methodSnippet,
                 '//LISTEN_BLOCK' => $this->listenSnippet
@@ -62,8 +63,14 @@ class SubscriberMakeCommand extends GeneratorCommand
                 'DummyEvent', class_basename($event), $stub
             );
 
-            return str_replace(
+            $stub = str_replace(
                 'DummyFullEvent', $event, $stub
+            );
+
+            $stub = str_replace(
+                ['DummyNamespace', 'DummyRootNamespace'],
+                [$this->getNamespace($name), $this->rootNamespace()],
+                $stub
             );
         }
 
@@ -131,7 +138,12 @@ class SubscriberMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['event', 'e', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, 'The event class/es being listened for.'],
+            [
+                'event',
+                'e',
+                InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL,
+                'The event class/es being listened for.'
+            ],
         ];
     }
 }
