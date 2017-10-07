@@ -2,7 +2,6 @@
 
 namespace Exylon\Fuse\Console;
 
-use Illuminate\Console\GeneratorCommand;
 use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -61,7 +60,7 @@ class SubscriberMakeCommand extends GeneratorCommand
             $stub = str_replace_assoc([
                 '//METHOD_BLOCK' => $this->methodSnippet,
                 '//LISTEN_BLOCK' => $this->listenSnippet,
-                '//USE_BLOCK' => $this->fullEventSnippet,
+                '//USE_BLOCK'    => $this->fullEventSnippet,
             ], $stub);
             $stub = str_replace(
                 'DummyEvent', class_basename($event), $stub
@@ -74,7 +73,7 @@ class SubscriberMakeCommand extends GeneratorCommand
         $stub = str_replace_assoc([
             '//METHOD_BLOCK' => '',
             '//LISTEN_BLOCK' => '',
-            '//USE_BLOCK'   =>  ''
+            '//USE_BLOCK'    => ''
         ], $stub);
         return $this->replaceNamespace($stub, $name)->replaceClass($stub, $name);
 
@@ -143,5 +142,15 @@ class SubscriberMakeCommand extends GeneratorCommand
                 'The event class/es being listened for.'
             ],
         ];
+    }
+
+    /**
+     * @param $stub
+     *
+     * @return string
+     */
+    protected function replace(&$stub)
+    {
+        return $stub;
     }
 }
