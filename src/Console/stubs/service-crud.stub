@@ -1,0 +1,34 @@
+<?php
+
+
+namespace DummyNamespace;
+
+use DummyRootNamespaceRepositories\DummyRepository;
+
+class DummyClass
+{
+    /**
+     * @var \DummyRootNamespaceRepositories\DummyRepository
+     */
+    private $dummyRepositoryName;
+
+    public function __construct(DummyRepository $dummyRepositoryName)
+    {
+        $this->dummyRepositoryName = $dummyRepositoryName;
+    }
+
+    public function create(array $attributes)
+    {
+        $this->dummyRepositoryName->create($attributes);
+    }
+
+    public function update($id, array $attributes)
+    {
+        $this->dummyRepositoryName->update($id, $attributes);
+    }
+
+    public function delete($id)
+    {
+        $this->dummyRepositoryName->delete($id);
+    }
+}

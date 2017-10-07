@@ -1,0 +1,14 @@
+<?php
+
+namespace DummyNamespace;
+
+use DummyRootNamespaceModels\DummyModel;
+
+class DummyClass extends Repository
+{
+
+    public function __construct()
+    {
+        parent::__construct(new DummyModel());
+    }
+}

@@ -1,0 +1,19 @@
+<?php
+
+
+namespace DummyNamespace;
+
+use DummyRootNamespaceRepositories\DummyRepository;
+
+class DummyClass
+{
+    /**
+     * @var \DummyRootNamespaceRepositories\DummyRepository
+     */
+    private $dummyRepositoryName;
+
+    public function __construct(DummyRepository $dummyRepositoryName)
+    {
+        $this->dummyRepositoryName = $dummyRepositoryName;
+    }
+}

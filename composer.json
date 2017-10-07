@@ -1,0 +1,51 @@
+{
+    "name": "exylon/fuse",
+    "description": "Collection of Laravel utilities",
+    "keywords": [
+        "exylon",
+        "fuse",
+        "collection",
+        "laravel"
+    ],
+    "type": "library",
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/exylon/laravel-fuse/issues",
+        "source": "https://github.com/exylon/laravel-fuse"
+    },
+    "authors": [
+        {
+            "name": "Edmandie Samonte",
+            "email": "edmandie.samonte@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "laravel/framework": "5.5.*"
+    },
+    "require-dev": {
+        "mockery/mockery": "~1.0",
+        "phpunit/phpunit": "~6.4"
+    },
+    "autoload": {
+        "psr-4": {
+            "Exylon\\Fuse\\": "src/"
+        },
+        "files": [
+            "src/Support/helpers.php"
+        ]
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Exylon\\Fuse\\FuseServiceProvider"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
