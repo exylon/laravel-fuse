@@ -37,7 +37,7 @@ class SubscriberMakeCommand extends GeneratorCommand
     
     //METHOD_BLOCK';
 
-    protected $listenSnippet = '$events->listen(\'DummyFullEvent\', \'DummyNamespace\DummyClass@onDummyEvent\');
+    protected $listenSnippet = '$events->listen(DummyEvent::class, \'DummyNamespace\DummyClass@onDummyEvent\');
         //LISTEN_BLOCK';
 
     protected $fullEventSnippet = 'use DummyFullEvent;
@@ -73,7 +73,8 @@ class SubscriberMakeCommand extends GeneratorCommand
 
         $stub = str_replace_assoc([
             '//METHOD_BLOCK' => '',
-            '//LISTEN_BLOCK' => ''
+            '//LISTEN_BLOCK' => '',
+            '//USE_BLOCK'   =>  ''
         ], $stub);
         return $this->replaceNamespace($stub, $name)->replaceClass($stub, $name);
 
