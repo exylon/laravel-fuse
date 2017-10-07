@@ -30,6 +30,7 @@ class RepositoryMakeCommand extends GeneratorCommand
     {
         $type = $this->option('type');
         $createInterface = !$this->option('no-interface');
+
         if (!in_array($type, [
             'eloquent'
         ])) {
@@ -87,8 +88,7 @@ class RepositoryMakeCommand extends GeneratorCommand
                 'no-interface',
                 '',
                 InputOption::VALUE_NONE,
-                'Create a concrete repository without the interface',
-                false
+                'Create a concrete repository without the interface'
             ],
         ];
     }
