@@ -52,7 +52,7 @@ class SubscriberMakeCommand extends GeneratorCommand
         $events = $this->option('event');
         $stub = parent::buildClass($name);
         foreach ($events as $event) {
-            $event = $this->resolveEvent($this->option('event'));
+            $event = $this->resolveEvent($event);
 
             $stub = str_replace_assoc([
                 '//METHOD_BLOCK' => $this->methodSnippet,
