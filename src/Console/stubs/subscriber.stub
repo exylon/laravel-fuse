@@ -8,11 +8,7 @@ class DummyClass
 {
 
 
-    public function onDummyEvent(DummyEvent $event)
-    {
-        //
-    }
-
+    //METHOD_BLOCK
     /**
      * Register the listeners for the subscriber.
      *
@@ -20,6 +16,6 @@ class DummyClass
      */
     public function subscribe($events)
     {
-        $events->listen('DummyFullEvent', 'DummyNamespace\DummyClass@onDummyEvent');
+        //LISTEN_BLOCK
     }
 }

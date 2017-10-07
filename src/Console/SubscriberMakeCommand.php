@@ -29,6 +29,17 @@ class SubscriberMakeCommand extends GeneratorCommand
      */
     protected $type = 'Subscriber';
 
+
+    protected $methodSnippet = 'public function onDummyEvent(DummyEvent $event)
+    {
+        //
+    }
+    
+    //METHOD_BLOCK';
+
+    protected $listenSnippet = '$events->listen(\'DummyFullEvent\', \'DummyNamespace\DummyClass@onDummyEvent\');
+        //LISTEN_BLOCK';
+
     /**
      * Build the class with the given name.
      *
@@ -38,8 +49,34 @@ class SubscriberMakeCommand extends GeneratorCommand
      */
     protected function buildClass($name)
     {
-        $event = $this->option('event');
+        $events = $this->option('event');
+        $stub = parent::buildClass($name);
+        foreach ($events as $event) {
+            $event = $this->resolveEvent($this->option('event'));
 
+            $stub = str_replace_assoc([
+                '//METHOD_BLOCK' => $this->methodSnippet,
+                '//LISTEN_BLOCK' => $this->listenSnippet
+            ], $stub);
+            $stub = str_replace(
+                'DummyEvent', class_basename($event), $stub
+            );
+
+            return str_replace(
+                'DummyFullEvent', $event, $stub
+            );
+        }
+
+        $stub = str_replace_assoc([
+            '//METHOD_BLOCK' => '',
+            '//LISTEN_BLOCK' => ''
+        ], $stub);
+        return $stub;
+
+    }
+
+    protected function resolveEvent($event)
+    {
         if (!Str::startsWith($event, [
             $this->laravel->getNamespace(),
             'Illuminate',
@@ -47,14 +84,7 @@ class SubscriberMakeCommand extends GeneratorCommand
         ])) {
             $event = $this->laravel->getNamespace() . 'Events\\' . $event;
         }
-
-        $stub = str_replace(
-            'DummyEvent', class_basename($event), parent::buildClass($name)
-        );
-
-        return str_replace(
-            'DummyFullEvent', $event, $stub
-        );
+        return $event;
     }
 
     /**
@@ -101,7 +131,7 @@ class SubscriberMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['event', 'e', InputOption::VALUE_OPTIONAL, 'The event class being listened for.'],
+            ['event', 'e', InputOption::VALUE_IS_ARRAY, 'The event class being listened for.'],
         ];
     }
 }
