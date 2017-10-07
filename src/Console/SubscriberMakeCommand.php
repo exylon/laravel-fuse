@@ -131,7 +131,7 @@ class SubscriberMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['event', 'e', InputOption::VALUE_IS_ARRAY, 'The event class being listened for.'],
+            ['event', 'e', InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL, 'The event class/es being listened for.'],
         ];
     }
 }
