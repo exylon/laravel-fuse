@@ -82,11 +82,11 @@ class RepositoryMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return [
-            ['type', '', InputOption::VALUE_NONE, 'Creates an Eloquent type repository', 'eloquent'],
+            ['type', '', InputOption::VALUE_OPTIONAL, 'Creates an Eloquent type repository', 'eloquent'],
             [
                 'no-interface',
                 '',
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_NONE,
                 'Create a concrete repository without the interface',
                 false
             ],
