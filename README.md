@@ -16,11 +16,11 @@ composer require exylon/fuse
 Creates a new Subscriber class based on [Laravel Subscriber](https://laravel.com/docs/master/events#event-subscribers)
 
 | Parameters                | Description                                | Example                           |
-| ------------------------- |-------------------------------------------:| :--------------------------------:|
+| ------------------------- |:-------------------------------------------| :--------------------------------:|
 | `name`     | Subscriber class name     | `AuthEventsSubscriber` |
 
 | Options                | Description                                | Example                           |
-| ------------------------- |-------------------------------------------:| :--------------------------------:|
+| ------------------------- | :------------------------------------------- | :--------------------------------:|
 | <code>-e&#124;--event=</code>     | The event class/es being listened for.   | `Illuminate\\Auth\\Events\\Login` |
 
 Basic Usage:
@@ -35,11 +35,11 @@ $ php artisan make:subscriber AuthEventsSubscriber --event="Illuminate\\Auth\\Ev
 Creates a new [repository](https://martinfowler.com/eaaCatalog/repository.html) class
 
 | Parameters                | Description                                | Example                           |
-| ------------------------- |-------------------------------------------:| :--------------------------------:|
+| ------------------------- | :-------------------------------------------| :--------------------------------:|
 | `model`     |  Target model     | `User` |
 
 | Options                | Description                                | Example                           |
-| ------------------------- |-------------------------------------------:| :--------------------------------:|
+| ------------------------- | :-------------------------------------------| :--------------------------------:|
 | `--no-interface` | By default, a repository interface and an Eloquent implementation will be created. If you wish to use Eloquent implementation solely, add this as option |  |
 
 Basic Usage:
@@ -52,11 +52,11 @@ $ php artisan make:repository User --no-interface
 Creates a new [service](https://martinfowler.com/eaaCatalog/serviceLayer.html) class.
 
 | Parameters                | Description                                | Example                           |
-| ------------------------- |-------------------------------------------:| :--------------------------------:|
+| ------------------------- | :-------------------------------------------| :--------------------------------:|
 | `name`     |  Service class name     | `UserService` |
 
 | Options                | Description                                | Example                           |
-| ------------------------- |-------------------------------------------:| :--------------------------------:|
+| ------------------------- |:-------------------------------------------| :--------------------------------:|
 | <code>-r&#124;--repository=</code> | Provides the repository to be used by the service | `UserRepository` |
 | `--crud` | Adds create, update and delete methods |  |
 
