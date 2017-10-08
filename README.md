@@ -20,7 +20,8 @@ Creates a new Subscriber class based on [Laravel Subscriber](https://laravel.com
 | `name`     | Subscriber class name     | `AuthEventsSubscriber` |
 
 | Options                | Description                                | Example                           |
-| <code>-e&#124;--event=</code>     | The event class/es being listened for.     | `Illuminate\\Auth\\Events\\Login` |
+| ------------------------- |-------------------------------------------:| :--------------------------------:|
+| <code>-e&#124;--event=</code>     | The event class/es being listened for.   | `Illuminate\\Auth\\Events\\Login` |
 
 Basic Usage:
 
