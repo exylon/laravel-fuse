@@ -125,11 +125,18 @@ interface Repository
     /**
      * Enables the transformer. If none is provided, the default transformer will be used
      *
-     * @param \Exylon\Fuse\Contracts\Transformer|\Closure|mixed|null $transformer
+     * @param \Exylon\Fuse\Contracts\Transformer|\Closure|mixed $transformer
      *
      * @return $this
      */
-    public function withTransformer($transformer = null);
+    public function withTransformer($transformer);
+
+    /**
+     * Disables any transformer including the default
+     *
+     * @return $this
+     */
+    public function withoutTransformer();
 
     /**
      * Sets the validation rules.

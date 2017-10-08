@@ -31,6 +31,11 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     protected $enableValidation = false;
 
     /**
+     * @var bool
+     */
+    protected $enableTransformer = true;
+
+    /**
      * @var \Exylon\Fuse\Contracts\Transformer
      */
     protected $transformer = null;
@@ -293,17 +298,29 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     /**
      * Enables the transformer. If none is provided, the default transformer will be used
      *
-     * @param \Exylon\Fuse\Contracts\Transformer|\Closure|mixed|null $transformer
+     * @param \Exylon\Fuse\Contracts\Transformer|\Closure|mixed $transformer
      *
      * @return \Exylon\Fuse\Contracts\Repository
      */
-    public function withTransformer($transformer = null)
+    public function withTransformer($transformer)
     {
         if ($transformer === null) {
             $transformer = $this->defaultTransformer;
         }
         $this->transformer = $transformer;
+        $this->enableTransformer = true;
         return $this;
+    }
+
+
+    /**
+     * Disables any transformer including th default
+     *
+     * @return \Exylon\Fuse\Contracts\Repository
+     */
+    public function withoutTransformer()
+    {
+        $this->enableTransformer = false;
     }
 
     /**
@@ -324,8 +341,13 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     protected function reset()
     {
         $this->model = $this->model->newInstance();
-        $this->transformer = null;
         $this->enableValidation = false;
+    }
+
+    protected function resetTransfomer()
+    {
+        $this->transformer = null;
+        $this->enableTransformer = true;
     }
 
 
@@ -338,18 +360,27 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     protected function transform(Model $model)
     {
-        if (is_callable($this->transformer)) {
-            return call_user_func($this->transformer, $model);
-        } elseif (method_exists($this->transformer, 'transform')) {
-            return $this->transformer->transform($model);
-        } elseif ($model instanceof $this->model) {
-            if (is_callable($this->defaultTransformer)) {
-                return call_user_func($this->defaultTransformer, $model);
-            } elseif (method_exists($this->defaultTransformer, 'transform')) {
-                return $this->defaultTransformer->transform($model);
+        if ($this->enableTransformer) {
+            if (($callback = $this->getTransformerCallback($this->transformer)) !== null) {
+                $model = call_user_func($callback, $model);
+            } elseif ($model instanceof $this->model && ($callback = $this->getTransformerCallback($this->defaultTransformer)) !== null) {
+                $model = call_user_func($callback, $model);
             }
         }
+
+        $this->resetTransfomer();
+
         return $model;
+    }
+
+    private function getTransformerCallback(&$transformer)
+    {
+        if (is_callable($transformer)) {
+            return $transformer;
+        } elseif (method_exists($transformer, 'transform')) {
+            return array($transformer, 'transform');
+        }
+        return null;
     }
 
 }

@@ -1,6 +1,9 @@
 <?php
 
 
+use Exylon\Fuse\Support\Attributes;
+use Illuminate\Support\Collection;
+
 class SupportHelperTest extends \PHPUnit\Framework\TestCase
 {
 
@@ -47,5 +50,26 @@ class SupportHelperTest extends \PHPUnit\Framework\TestCase
 
         $output = snake_to_title_case('lorem_ipsum_dolor_sit-amet');
         $this->assertEquals('Lorem Ipsum Dolor Sit-amet', $output);
+    }
+
+
+    public function testAttributes()
+    {
+        $items = [
+            'red'    => 'apple',
+            'orange' => 'orange',
+            'yellow' => [
+                'mangoes' => 'foo',
+                'pear'    => 'bar'
+            ]
+        ];
+
+        $arr = new Attributes($items);
+        $this->assertArrayHasKey('red', $arr);
+        $this->assertInstanceOf(Attributes::class, $arr->yellow);
+        $this->assertTrue($arr->yellow === $arr->yellow);
+        $this->assertTrue($arr->yellow->mangoes === 'foo');
+        $this->assertTrue($arr->yellow->pear === 'bar');
+        $this->assertInstanceOf(Collection::class, $arr->toCollection());
     }
 }

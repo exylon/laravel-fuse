@@ -24,4 +24,8 @@ class PhpCoreBehaviorTest extends \PHPUnit\Framework\TestCase
 class SampleClass
 {
 
+    public function greet(string $name)
+    {
+        return "Hello, $name!";
+    }
 }
