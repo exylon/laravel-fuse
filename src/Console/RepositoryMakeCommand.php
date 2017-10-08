@@ -114,23 +114,23 @@ class RepositoryMakeCommand extends GeneratorCommand
 
     protected function getModelClass()
     {
-        $modelClass = $this->getModelName();
+        $modelName = $this->getModelName();
+        $modelClass = $modelName;
         if (!Str::startsWith($modelClass, [
             $this->laravel->getNamespace(),
             'Illuminate',
             '\\',
         ])) {
-            $modelClass = $this->laravel->getNamespace() . 'Models\\' . $modelClass;
+            $modelClass = $this->laravel->getNamespace() . 'Models\\' . $modelName;
         }
         if (class_exists($modelClass)) {
             return $modelClass;
         }
-        $modelClass = $this->laravel->getNamespace() . $modelClass;
+        $modelClass = $this->laravel->getNamespace() . $modelName;
         if (class_exists($modelClass)) {
             return $modelClass;
         }
 
-        $modelName = $this->getModelName();
         $this->warn("Model '$modelName' does not exists.");
 
         return $modelClass;
