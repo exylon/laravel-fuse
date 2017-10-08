@@ -71,7 +71,7 @@ class ServiceMakeCommand extends GeneratorCommand
     {
         return array_merge(parent::getOptions(), [
             ['repository', 'r', InputOption::VALUE_OPTIONAL, 'Provides the repository to be used by the service', null],
-            ['crud', null, InputOption::VALUE_NONE, 'Adds create, update and delete functions'],
+            ['crud', null, InputOption::VALUE_NONE, 'Adds create, update and delete methods'],
         ]);
     }
 }
