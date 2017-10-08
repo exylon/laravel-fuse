@@ -4,7 +4,6 @@
 namespace Exylon\Fuse\Repositories\Eloquent;
 
 
-use Exylon\Fuse\Contracts\Transformer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -294,11 +293,11 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     /**
      * Enables the transformer. If none is provided, the default transformer will be used
      *
-     * @param \Exylon\Fuse\Contracts\Transformer|null $transformer
+     * @param \Exylon\Fuse\Contracts\Transformer|\Closure|mixed|null $transformer
      *
      * @return \Exylon\Fuse\Contracts\Repository
      */
-    public function withTransformer(Transformer $transformer = null)
+    public function withTransformer($transformer = null)
     {
         if ($transformer === null) {
             $transformer = $this->defaultTransformer;
@@ -310,11 +309,11 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     /**
      * Sets the default transformer
      *
-     * @param \Exylon\Fuse\Contracts\Transformer $transformer
+     * @param \Exylon\Fuse\Contracts\Transformer|\Closure|mixed|null $transformer
      *
      * @return mixed
      */
-    public function setDefaultTransformer(Transformer $transformer)
+    public function setDefaultTransformer($transformer)
     {
         $this->defaultTransformer = $transformer;
     }
@@ -339,10 +338,16 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     protected function transform(Model $model)
     {
-        if ($this->transformer instanceof Transformer) {
+        if (is_callable($this->transformer)) {
+            return call_user_func($this->transformer, $model);
+        } elseif (method_exists($this->transformer, 'transform')) {
             return $this->transformer->transform($model);
-        } elseif ($this->defaultTransformer instanceof Transformer && $model instanceof $this->model) {
-            return $this->defaultTransformer->transform($model);
+        } elseif ($model instanceof $this->model) {
+            if (is_callable($this->defaultTransformer)) {
+                return call_user_func($this->defaultTransformer, $model);
+            } elseif (method_exists($this->defaultTransformer, 'transform')) {
+                return $this->defaultTransformer->transform($model);
+            }
         }
         return $model;
     }
