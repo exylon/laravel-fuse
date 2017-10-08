@@ -2,7 +2,7 @@
 
 namespace DummyNamespace;
 
-use DummyRootNamespaceModels\DummyModel;
+use DummyModelClass;
 
 interface DummyClass extends \Exylon\Fuse\Contracts\Repository
 {

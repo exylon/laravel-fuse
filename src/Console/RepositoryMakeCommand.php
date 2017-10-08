@@ -2,6 +2,7 @@
 
 namespace Exylon\Fuse\Console;
 
+use Illuminate\Support\Str;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -24,7 +25,7 @@ class RepositoryMakeCommand extends GeneratorCommand
      *
      * @var string
      */
-    protected $description = 'Creates a repository for the given model';
+    protected $description = 'Create a repository class for the given model';
 
     public function handle()
     {
@@ -101,15 +102,41 @@ class RepositoryMakeCommand extends GeneratorCommand
     protected function replace(&$stub)
     {
         return str_replace_assoc([
-            'DummyModel' => $this->getNameInput()
+            'DummyModel'      => $this->getModelName(),
+            'DummyModelClass' => $this->getModelClass()
         ], $stub);
+    }
+
+    protected function getModelName()
+    {
+        return trim(str_replace_last('Repository', '', $this->argument('model')));
+    }
+
+    protected function getModelClass()
+    {
+        $modelClass = $this->getModelName();
+        if (class_exists($modelClass)) {
+            return $modelClass;
+        }
+        if (!Str::startsWith($modelClass, [
+            $this->laravel->getNamespace(),
+            'Illuminate',
+            '\\',
+        ])) {
+            $modelClass = $this->laravel->getNamespace() . 'Models\\' . $modelClass;
+        }
+        if (class_exists($modelClass)) {
+            return $modelClass;
+        }
+        $modelClass = $this->laravel->getNamespace() . $modelClass;
+        if (class_exists($modelClass)) {
+            return $modelClass;
+        }
+        throw new \InvalidArgumentException("Model class does not exists");
     }
 
     protected function getNameInput()
     {
-        if (ends_with($this->argument('model'), 'Repository')) {
-            return trim(str_replace_last('Repository', '', $this->argument('model')));
-        }
-        return trim($this->argument('model') . 'Repository');
+        return $this->getModelName() . 'Repository';
     }
 }
