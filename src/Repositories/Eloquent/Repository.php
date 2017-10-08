@@ -14,17 +14,17 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     /**
      * @var \Illuminate\Database\Eloquent\Model
      */
-    private $model;
+    protected $model;
 
     /**
      * @var array
      */
-    private $updateRules = [];
+    protected $updateRules = [];
 
     /**
      * @var array
      */
-    private $createRules = [];
+    protected $createRules = [];
 
     /**
      * @var bool
