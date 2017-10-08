@@ -11,7 +11,7 @@ composer require exylon/fuse
 ```
 
 ## Artisan Helpers
-### `php artisam make:subscriber`
+### `php artisan make:subscriber`
 
 Creates a new Subscriber class based on [Laravel Subscriber](https://laravel.com/docs/master/events#event-subscribers)
 
