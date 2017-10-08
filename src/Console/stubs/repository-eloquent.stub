@@ -2,7 +2,7 @@
 
 namespace DummyNamespace;
 
-use DummyRootNamespaceModels\DummyModel;
+use DummyModelClass;
 
 use Exylon\Fuse\Repositories\Eloquent\Repository;
 

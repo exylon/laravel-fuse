@@ -102,8 +102,8 @@ class RepositoryMakeCommand extends GeneratorCommand
     protected function replace(&$stub)
     {
         return str_replace_assoc([
+            'DummyModelClass' => $this->getModelClass(),
             'DummyModel'      => $this->getModelName(),
-            'DummyModelClass' => $this->getModelClass()
         ], $stub);
     }
 
@@ -115,9 +115,6 @@ class RepositoryMakeCommand extends GeneratorCommand
     protected function getModelClass()
     {
         $modelClass = $this->getModelName();
-        if (class_exists($modelClass)) {
-            return $modelClass;
-        }
         if (!Str::startsWith($modelClass, [
             $this->laravel->getNamespace(),
             'Illuminate',
@@ -132,7 +129,11 @@ class RepositoryMakeCommand extends GeneratorCommand
         if (class_exists($modelClass)) {
             return $modelClass;
         }
-        throw new \InvalidArgumentException("Model class does not exists");
+
+        $modelName = $this->getModelName();
+        $this->warn("Model '$modelName' does not exists.");
+
+        return $modelClass;
     }
 
     protected function getNameInput()
