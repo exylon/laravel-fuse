@@ -10,8 +10,8 @@ Collection of Laravel utilities
 composer require exylon/fuse
 ```
 
-### Artisan Helpers
-#### `php artisam make:subscriber`
+## Artisan Helpers
+### `php artisam make:subscriber`
 
 Creates a new Subscriber class based on [Laravel Subscriber](https://laravel.com/docs/master/events#event-subscribers)
 
@@ -30,7 +30,7 @@ $ php artisan make:subscriber AuthEventsSubscriber --event="Illuminate\\Auth\\Ev
 ```
 
 
-#### `php artisan make:repository`
+### `php artisan make:repository`
 
 Creates a new [repository](https://martinfowler.com/eaaCatalog/repository.html) class
 
@@ -47,7 +47,7 @@ Basic Usage:
 $ php artisan make:repository User --no-interface 
 ```
 
-#### `php artisan make:service`
+### `php artisan make:service`
 
 Creates a new [service](https://martinfowler.com/eaaCatalog/serviceLayer.html) class.
 
