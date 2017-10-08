@@ -341,7 +341,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     {
         if ($this->transformer instanceof Transformer) {
             return $this->transformer->transform($model);
-        } elseif ($this->defaultTransformer instanceof Transformer) {
+        } elseif ($this->defaultTransformer instanceof Transformer && $model instanceof $this->model) {
             return $this->defaultTransformer->transform($model);
         }
         return $model;
