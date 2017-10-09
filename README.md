@@ -64,3 +64,26 @@ Basic Usage:
 ```bash
 $ php artisan make:service UserService -r=UserRepository --crud
 ```
+
+## Helper Functions
+
+### `str_replace_assoc(array $pairs, $subject)`
+String replace using key-value pair (assoc array).
+
+### `validate(array $data, array $rules)`
+Shorthand for `\Validator::validate($data, $rules)`
+
+### `function random_hex_string($length)`
+Generates a random hexadecimal string with fixed length.
+
+Example: `$var = random_hex_string(10) //ffeb09ed56`
+
+### `random_int_string($length, $min = 0, $pad = '0')`
+Generates a random numeric string. If the generated numeric string is shorter than the `$length`, it will be padded by the `$pad`.
+
+Example: `$var = random_int_string(5) //01467`
+
+### `snake_to_title_case($str)`
+Converts a snake-cased formatted string to title case
+
+Example: `$var = snake_to_title('lorem_ipsum_dolor') // Lorem Ipsum Dolor`
