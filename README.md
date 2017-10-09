@@ -87,3 +87,59 @@ Example: `$var = random_int_string(5) //01467`
 Converts a snake-cased formatted string to title case
 
 Example: `$var = snake_to_title('lorem_ipsum_dolor') // Lorem Ipsum Dolor`
+
+
+## Helper Macros
+
+### `Request::location()`
+Using [`torann/geoip`](http://lyften.com/projects/laravel-geoip/doc/),
+```php
+Attributes {
+  #attributes: array [
+    "ip" => "127.0.0.0"
+    "iso_code" => "PH"
+    "country" => "Philippines"
+    "city" => "Paranaque"
+    "state" => "MNL"
+    "state_name" => "Manila"
+    "postal_code" => "06510"
+    "lat" => 14.471016
+    "lon" => 121.01476
+    "timezone" => "Asia/Manila"
+    "continent" => "NA"
+    "currency" => "USD"
+    "default" => true
+    "cached" => false
+  ]
+}
+```
+
+### `Request::agent()`
+Using [`jenssegers/agent`](https://github.com/jenssegers/agent)
+```php
+Attributes {
+  #attributes: array [
+    "agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"
+    "is_mobile" => false
+    "is_phone" => false
+    "is_tablet" => false
+    "device" => "Macintosh"
+    "is_desktop" => true
+    "platform" => "OS X"
+    "is_robot" => false
+    "robot" => false
+    "browser" => "Chrome"
+    "languages" => array:2 [▶]
+  ]
+}
+```
+
+
+### `Builder::forceMake($attributes)`
+
+Coincides with Eloquent Models' `forceCreate`, this method creates an instance of the model without persisting and avoiding MassAssignmentException.
+*NOTE: Make sure that you pre-validated the attributes.*
+
+```php
+$user = User::forceMake(['name'=>'John Doe']);
+```
