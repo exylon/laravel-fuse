@@ -11,7 +11,7 @@ composer require exylon/fuse
 ```
 
 ## Artisan Helpers
-### `php artisan make:subscriber`
+#### `php artisan make:subscriber`
 
 Creates a new Subscriber class based on [Laravel Subscriber](https://laravel.com/docs/master/events#event-subscribers)
 
@@ -30,7 +30,7 @@ $ php artisan make:subscriber AuthEventsSubscriber --event="Illuminate\\Auth\\Ev
 ```
 
 
-### `php artisan make:repository`
+#### `php artisan make:repository`
 
 Creates a new [repository](https://martinfowler.com/eaaCatalog/repository.html) class
 
@@ -47,7 +47,7 @@ Basic Usage:
 $ php artisan make:repository User --no-interface 
 ```
 
-### `php artisan make:service`
+#### `php artisan make:service`
 
 Creates a new [service](https://martinfowler.com/eaaCatalog/serviceLayer.html) class.
 
@@ -65,30 +65,35 @@ Basic Usage:
 $ php artisan make:service UserService -r=UserRepository --crud
 ```
 
+<br/>
+
 ## Helper Functions
 
-### `str_replace_assoc(array $pairs, $subject)`
+#### `str_replace_assoc(array $pairs, $subject)`
 String replace using key-value pair (assoc array).
 
-### `validate(array $data, array $rules)`
+#### `validate(array $data, array $rules)`
 Shorthand for `\Validator::validate($data, $rules)`
 
-### `random_hex_string($length)`
+#### `random_hex_string($length)`
 Generates a random hexadecimal string with fixed length.
 
 Example: `$var = random_hex_string(10) //ffeb09ed56`
 
-### `random_int_string($length, $min = 0, $pad = '0')`
+#### `random_int_string($length, $min = 0, $pad = '0')`
 Generates a random numeric string. If the generated numeric string is shorter than the `$length`, it will be padded by the `$pad`.
 
 Example: `$var = random_int_string(5) //01467`
 
-### `snake_to_title_case($str)`
+#### `snake_to_title_case($str)`
 Converts a snake-cased formatted string to title case
 
 Example: `$var = snake_to_title('lorem_ipsum_dolor') // Lorem Ipsum Dolor`
 
+<br/>
+
 ## The `\Exylon\Fuse\Support\Attributes` class
+
 Associative array on steroids. 
 Converts regular associative array to standard objects
 ```php
@@ -109,7 +114,7 @@ echo $arr->yellow->mangoes; // "foo"
 ```
 
 Working with aliases.
-*Note: Currently, aliases only supports the first level keys only*
+*Note: Currently, aliases supports the first level keys only*
 
 ```php
 $arr = new Attributes([
@@ -130,15 +135,17 @@ echo $arr['pula']; // "apple"
 echo $arr->pula; // "apple"
 ```
 
-### `Attributes::toCollection()`
+#### `Attributes::toCollection()`
 Converts the attributes to `Illuminate\Support\Collection`
 
-### `Attributes::toJson($options=0)`
+#### `Attributes::toJson($options=0)`
 Converts the attributes to json
+
+<br/>
 
 ## Helper Macros
 
-### `Request::location()`
+#### `Request::location()`
 Using [`torann/geoip`](http://lyften.com/projects/laravel-geoip/doc/),
 ```php
 \Exylon\Fuse\Support\Attributes {
@@ -167,7 +174,7 @@ Using [`torann/geoip`](http://lyften.com/projects/laravel-geoip/doc/),
 }
 ```
 
-### `Request::agent()`
+#### `Request::agent()`
 Using [`jenssegers/agent`](https://github.com/jenssegers/agent)
 ```php
 \Exylon\Fuse\Support\Attributes {
@@ -188,7 +195,7 @@ Using [`jenssegers/agent`](https://github.com/jenssegers/agent)
 ```
 
 
-### `Builder::forceMake($attributes)`
+#### `Builder::forceMake($attributes)`
 
 Coincides with Eloquent Models' `forceCreate`, this method creates an instance of the model without persisting and avoiding MassAssignmentException.
 *NOTE: Make sure that you pre-validated the attributes.*
