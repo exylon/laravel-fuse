@@ -47,7 +47,7 @@
                 "Exylon\\Fuse\\FuseServiceProvider"
             ],
             "aliases": {
-                "FuseSanitizer": "Exylon\\Fuse\\Facades\\Sanitizer"
+                "FuseSanitizer": "Exylon\\Fuse\\Facades\\SanitizerFacade"
             }
         }
     },
