@@ -73,7 +73,7 @@ String replace using key-value pair (assoc array).
 ### `validate(array $data, array $rules)`
 Shorthand for `\Validator::validate($data, $rules)`
 
-### `function random_hex_string($length)`
+### `random_hex_string($length)`
 Generates a random hexadecimal string with fixed length.
 
 Example: `$var = random_hex_string(10) //ffeb09ed56`
