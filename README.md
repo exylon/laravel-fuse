@@ -88,13 +88,60 @@ Converts a snake-cased formatted string to title case
 
 Example: `$var = snake_to_title('lorem_ipsum_dolor') // Lorem Ipsum Dolor`
 
+## The `\Exylon\Fuse\Support\Attributes` class
+Associative array on steroids. 
+Converts regular associative array to standard objects
+```php
+$arr = new Attributes([
+              'red'    => 'apple',
+              'orange' => 'orange',
+              'yellow' => [
+                  'mangoes' => 'foo',
+                  'pear'    => 'bar'
+              ]
+          ]);
+
+echo $arr['red']; // "apple"
+echo $arr->red; // "apple"
+
+echo $arr['yellow']['mangoes']; // "foo"
+echo $arr->yellow->mangoes; // "foo"
+```
+
+Working with aliases.
+*Note: Currently, aliases only supports the first level keys only*
+
+```php
+$arr = new Attributes([
+              'red'    => 'apple',
+              'orange' => 'orange',
+              'yellow' => [
+                  'mangoes' => 'foo',
+                  'pear'    => 'bar'
+              ]
+          ],[ // 'pula' as an alias for 'red'
+              'pula'   => 'red'
+          ]);
+
+echo $arr['red']; // "apple"
+echo $arr->red; // "apple"
+
+echo $arr['pula']; // "apple"
+echo $arr->pula; // "apple"
+```
+
+### `Attributes::toCollection()`
+Converts the attributes to `Illuminate\Support\Collection`
+
+### `Attributes::toJson($options=0)`
+Converts the attributes to json
 
 ## Helper Macros
 
 ### `Request::location()`
 Using [`torann/geoip`](http://lyften.com/projects/laravel-geoip/doc/),
 ```php
-Attributes {
+\Exylon\Fuse\Support\Attributes {
   #attributes: array [
     "ip" => "127.0.0.0"
     "iso_code" => "PH"
@@ -111,13 +158,19 @@ Attributes {
     "default" => true
     "cached" => false
   ]
+  #aliases: array [
+    "country_code" => "iso_code"
+    "latitude" => "lat"
+    "longitude" => "lon"
+    "zip_code" => "postal_code"
+  ]
 }
 ```
 
 ### `Request::agent()`
 Using [`jenssegers/agent`](https://github.com/jenssegers/agent)
 ```php
-Attributes {
+\Exylon\Fuse\Support\Attributes {
   #attributes: array [
     "agent" => "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36"
     "is_mobile" => false

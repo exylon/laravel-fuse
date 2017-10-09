@@ -59,7 +59,12 @@ class FuseServiceProvider extends ServiceProvider
                 if ($this->location) {
                     return $this->location;
                 }
-                return $this->location = new Attributes(geoip($this->getClientIp())->toArray());
+                return $this->location = new Attributes(geoip($this->getClientIp())->toArray(), [
+                    'country_code' => 'iso_code',
+                    'latitude'     => 'lat',
+                    'longitude'    => 'lon',
+                    'zip_code'     => 'postal_code'
+                ]);
             });
         }
 

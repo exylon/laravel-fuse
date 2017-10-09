@@ -20,9 +20,15 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
      */
     protected $attributes;
 
-    public function __construct(array $attributes)
+    /**
+     * @var array
+     */
+    protected $aliases;
+
+    public function __construct(array $attributes, array $aliases = [])
     {
         $this->attributes = $attributes;
+        $this->aliases = $aliases;
     }
 
     /**
@@ -68,6 +74,9 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
      */
     public function offsetGet($key)
     {
+        if (array_key_exists($key, $this->aliases)) {
+            $key = $this->aliases[$key];
+        }
         return $this->attributes[$key];
     }
 
@@ -81,6 +90,9 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
      */
     public function offsetSet($key, $value)
     {
+        if (array_key_exists($key, $this->aliases)) {
+            $key = $this->aliases[$key];
+        }
         if (is_null($key)) {
             $this->attributes[] = $value;
         } else {

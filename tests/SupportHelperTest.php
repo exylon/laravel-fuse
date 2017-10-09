@@ -64,12 +64,17 @@ class SupportHelperTest extends \PHPUnit\Framework\TestCase
             ]
         ];
 
-        $arr = new Attributes($items);
+        $arr = new Attributes($items, [
+            'pula' => 'red'
+        ]);
         $this->assertArrayHasKey('red', $arr);
         $this->assertInstanceOf(Attributes::class, $arr->yellow);
         $this->assertTrue($arr->yellow === $arr->yellow);
         $this->assertTrue($arr->yellow->mangoes === 'foo');
         $this->assertTrue($arr->yellow->pear === 'bar');
+        $this->assertEquals('apple', $arr['red']);
+        $this->assertEquals('apple', $arr['pula']);
+        $this->assertEquals('foo', $arr['yellow']['mangoes']);
         $this->assertInstanceOf(Collection::class, $arr->toCollection());
     }
 }
