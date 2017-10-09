@@ -241,13 +241,13 @@ $data = FuseSanitizer::sanitize($data,[
       ]); // ['email' => 'example@example.com']
 ```
 
-The rules are line in this manner:
+The rules are prioritized in this manner:
 1. Global Wildcard 
 2. Global Rule
 3. Inline Wildcard
 4. Inline Rule
 
-If you set the global rules, the inline rules is optional.
+If you set the global rules, the inline rules are optional.
 Sample:
 
 ```php
