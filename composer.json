@@ -45,7 +45,10 @@
         "laravel": {
             "providers": [
                 "Exylon\\Fuse\\FuseServiceProvider"
-            ]
+            ],
+            "aliases": {
+                "FuseSanitizer": "Exylon\\Fuse\\Facades\\Sanitizer"
+            }
         }
     },
     "config": {

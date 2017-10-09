@@ -203,3 +203,101 @@ Coincides with Eloquent Models' `forceCreate`, this method creates an instance o
 ```php
 $user = User::forceMake(['name'=>'John Doe']);
 ```
+
+<br/>
+
+## `FuseSanitizer` Facade
+
+Cleans up your data based on rules.
+
+#### Inline Rules
+```php
+
+$data = [
+    'email' =>  '    EXAMPLE@EXAMPLE.COM    '
+];
+$data = FuseSanitizer::sanitize($data,[
+          '*' =>  'trim::string', // Wildcard
+          'email' =>  'strtolower' // Applicable only fields named 'email'
+      ]); // ['email' => 'example@example.com']
+
+```
+The 'email' rule will be only applicable to fields with name 'email'. Int this case, `strtolower` will be called if there exists an 'email' field from the data.
+
+The `*` signifies a wildcard which makes it applicable to "any" data, but take note that the included rule is `trim::string`. The rule is divided into three parts - *function*, *parameters*, *data type* -, which is separated by colon ('`:`'); *parameters* are further divided by comman ('`,`'). By default, data type will be assumed as string. In our case, for the function `trim` we don't need any parameters but we need to supply a data type to make it applicable only to `string` type data. Available data types are `string`,`array`, `int`, `float`, and `double`.
+
+#### Inline Rules with Global Rules
+Sample:
+
+```php
+FuseSanitizer::setGlobalRules([
+    'email' =>  'trim' 
+]);
+$data = [
+    'email' =>  '    EXAMPLE@EXAMPLE.COM    '
+];
+$data = FuseSanitizer::sanitize($data,[
+          'email' =>  'strtolower'
+      ]); // ['email' => 'example@example.com']
+```
+
+The rules are line in this manner:
+1. Global Wildcard 
+2. Global Rule
+3. Inline Wildcard
+4. Inline Rule
+
+If you set the global rules, the inline rules is optional.
+Sample:
+
+```php
+FuseSanitizer::setGlobalRules([
+    'email' =>  ['trim','strtolower']
+]);
+$data = [
+    'email' =>  '    EXAMPLE@EXAMPLE.COM    '
+];
+$data = FuseSanitizer::sanitize($data); // ['email' => 'example@example.com']
+```
+
+#### Sanitizing a single value
+Sample:
+
+```php
+$email = FuseSanitizer::sanitizeValue('    EXAMPLE@EXAMPLE.COM    ',['trim','strtolower']); // 'example@example.com'
+```
+
+#### Rule formats
+
+##### Pipe separated (`|`) Rules
+```php
+$email = FuseSanitizer::sanitizeValue('    EXAMPLE@EXAMPLE.COM    ','trim|strtolower'); // 'example@example.com'
+```
+
+
+##### Array-type Rules
+```php
+$email = FuseSanitizer::sanitizeValue('    EXAMPLE@EXAMPLE.COM    ', ['trim','strtolower']); // 'example@example.com'
+```
+
+##### Callback Rules
+```php
+$email = FuseSanitizer::sanitizeValue('    EXAMPLE@EXAMPLE.COM    ', ['trim',function($value){
+    return strtolower($value);
+}]); // 'example@example.com'
+```
+```php
+$email = FuseSanitizer::sanitizeValue('    EXAMPLE@EXAMPLE.COM    ', ['trim','App\\Support\\SanitizerHelper@toLower']); // 'example@example.com'
+```
+
+#### Extending callbacks via `FuseSanitizer::register`
+```php
+FuseSanitizer::register('tolower',function($value){
+  return strtolower($value);
+});
+$email = FuseSanitizer::sanitizeValue('    EXAMPLE@EXAMPLE.COM    ', ['trim','tolower']); // 'example@example.com'
+```
+```php
+FuseSanitizer::register('tolower','App\\Support\\SanitizerHelper@toLower');
+$email = FuseSanitizer::sanitizeValue('    EXAMPLE@EXAMPLE.COM    ', ['trim','tolower']); // 'example@example.com'
+```

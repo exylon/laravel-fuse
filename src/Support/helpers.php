@@ -83,3 +83,33 @@ if (!function_exists('snake_to_title_case')) {
 }
 
 
+if (!function_exists('array_dot_reverse')) {
+    /**
+     * Converts dot-noted array to regular associative array
+     *
+     * @param array $dotArray
+     *
+     * @return array
+     */
+    function array_dot_reverse(array $dotArray)
+    {
+        return \Exylon\Fuse\Support\Arr::dotReverse($dotArray);
+    }
+}
+
+
+if (!function_exists('is_assoc')) {
+
+    /**
+     * Checks if the given array is an associative array
+     *
+     * @param mixed $array
+     *
+     * @return bool
+     */
+    function is_assoc($array)
+    {
+        return \Exylon\Fuse\Support\Arr::isAssoc($array);
+    }
+}
+

@@ -5,6 +5,7 @@ namespace Exylon\Fuse;
 
 
 use Exylon\Fuse\Support\Attributes;
+use Exylon\Fuse\Support\Sanitizer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\ServiceProvider;
@@ -23,6 +24,7 @@ class FuseServiceProvider extends ServiceProvider
         }
 
         $this->registerMacros();
+        $this->registerFacades();
     }
 
     /**
@@ -89,5 +91,12 @@ class FuseServiceProvider extends ServiceProvider
                 ]);
             });
         }
+    }
+
+    private function registerFacades()
+    {
+        $this->app->singleton('fuse.sanitizer', function () {
+            return new Sanitizer();
+        });
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 
+use Exylon\Fuse\Support\Arr;
 use Exylon\Fuse\Support\Attributes;
 use Illuminate\Support\Collection;
 
@@ -50,6 +51,71 @@ class SupportHelperTest extends \PHPUnit\Framework\TestCase
 
         $output = snake_to_title_case('lorem_ipsum_dolor_sit-amet');
         $this->assertEquals('Lorem Ipsum Dolor Sit-amet', $output);
+    }
+
+    public function testArrayDotReverse()
+    {
+        $arr = [
+            'one.a'   => 'red',
+            'one.b'   => 'blue',
+            'one.c'   => 'green',
+            'one.d.d' => 'white'
+        ];
+
+        $test = Arr::dotReverse($arr);
+        $this->assertArraySubset([
+            'one' => [
+                'a' => 'red',
+                'b' => 'blue',
+                'c' => 'green',
+                'd' => [
+                    'd' => 'white'
+                ]
+            ]
+        ], $test);
+    }
+
+    public function testArrayIsAssoc()
+    {
+        $this->assertTrue(Arr::isAssoc([
+            'foo' => 'bar'
+        ]));
+        $this->assertFalse(Arr::isAssoc([
+            'foo',
+            'bar'
+        ]));
+        $this->assertFalse(Arr::isAssoc([
+            '0' => 'bar'
+        ]));
+        $this->assertFalse(Arr::isAssoc([
+            0 => 'bar'
+        ]));
+    }
+
+    public function testArrayDot()
+    {
+        $this->assertArraySubset([
+            'red.apple' => ['sweet', 'salty']
+        ], Arr::dot([
+            'red' => [
+                'apple' => [
+                    'sweet',
+                    'salty'
+                ]
+            ]
+        ]));
+
+        $this->assertArraySubset([
+            'red.apple.sweet' => true,
+            'red.apple.0'     => 'salty'
+        ], Arr::dot([
+            'red' => [
+                'apple' => [
+                    'sweet' => true,
+                    'salty'
+                ]
+            ]
+        ]));
     }
 
 
