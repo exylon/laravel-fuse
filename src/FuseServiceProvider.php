@@ -24,6 +24,11 @@ class FuseServiceProvider extends ServiceProvider
         }
 
         $this->registerMacros();
+    }
+
+    public function register()
+    {
+
         $this->registerFacades();
     }
 

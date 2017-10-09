@@ -1,7 +1,10 @@
 <?php
 
+namespace Exylon\Fuse\Facades;
 
-class SanitizerFacade extends \Illuminate\Support\Facades\Facade
+use Illuminate\Support\Facades\Facade;
+
+class Sanitizer extends Facade
 {
     protected static function getFacadeAccessor()
     {
