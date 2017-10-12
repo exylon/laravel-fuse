@@ -443,6 +443,6 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function setOptions(array $options)
     {
-        $options = array_merge(config('fuse.repository'), $options);
+        $this->options = array_merge(config('fuse.repository'), $options);
     }
 }
