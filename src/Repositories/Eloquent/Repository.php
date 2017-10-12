@@ -13,6 +13,10 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     /**
      * @var \Illuminate\Database\Eloquent\Model
      */
+    protected $originalModel;
+    /**
+     * @var \Illuminate\Database\Eloquent\Model
+     */
     protected $model;
 
     /**
@@ -49,7 +53,8 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
 
     public function __construct(Model $model)
     {
-        $this->model = $model;
+        $this->originalModel = $model;
+        $this->reset();
     }
 
 
@@ -340,7 +345,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     protected function reset()
     {
-        $this->model = $this->model->newInstance();
+        $this->model = $this->originalModel->newInstance();
         $this->enableValidation = false;
     }
 
