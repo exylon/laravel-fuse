@@ -21,7 +21,7 @@ Creates a new Subscriber class based on [Laravel Subscriber](https://laravel.com
 
 | Options                | Description                                | Example                           |
 | ------------------------- | :------------------------------------------- | :--------------------------------:|
-| <code>-e&#124;--event=</code>     | The event class/es being listened for.   | `Illuminate\\Auth\\Events\\Login` |
+| <code>--event=</code>     | The event class/es being listened for.   | `Illuminate\\Auth\\Events\\Login` |
 
 Basic Usage:
 
@@ -57,7 +57,7 @@ Creates a new [service](https://martinfowler.com/eaaCatalog/serviceLayer.html) c
 
 | Options                | Description                                | Example                           |
 | ------------------------- |:-------------------------------------------| :--------------------------------:|
-| <code>-r&#124;--repository=</code> | Provides the repository to be used by the service | `UserRepository` |
+| <code>--repository=</code> | Provides the repository to be used by the service | `UserRepository` |
 | `--crud` | Adds create, update and delete methods |  |
 
 Basic Usage:

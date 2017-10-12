@@ -125,7 +125,7 @@ class SubscriberMakeCommand extends GeneratorCommand
         return [
             [
                 'event',
-                'e',
+                null,
                 InputOption::VALUE_IS_ARRAY | InputOption::VALUE_OPTIONAL,
                 'The event class/es being listened for.'
             ],
