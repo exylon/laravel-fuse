@@ -30,6 +30,7 @@ class FuseServiceProvider extends ServiceProvider
     {
 
         $this->registerFacades();
+        $this->loadConfig();
     }
 
     /**
@@ -103,5 +104,13 @@ class FuseServiceProvider extends ServiceProvider
         $this->app->singleton('fuse.sanitizer', function () {
             return new Sanitizer();
         });
+    }
+
+    private function loadConfig()
+    {
+        $this->publishes([
+            __DIR__ . '/../resources/config/fuse.php' => config_path('fuse.php')
+        ], 'fuse-config');
+        $this->mergeConfigFrom(__DIR__ . '/../resources/config/fuse.php', 'fuse');
     }
 }

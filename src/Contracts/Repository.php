@@ -16,6 +16,16 @@ interface Repository
     public function all(array $columns = array('*'));
 
     /**
+     * Returns a chunk of entities
+     *
+     * @param int   $limit
+     * @param array $columns
+     *
+     * @return mixed
+     */
+    public function paginate(int $limit, array $columns = array('*'));
+
+    /**
      * Creates and persists an entity
      *
      * @param array $attributes
@@ -158,4 +168,13 @@ interface Repository
      * @return mixed
      */
     public function setDefaultTransformer($transformer);
+
+    /**
+     * Overrides the default settings for this repository
+     *
+     * @param array $options
+     *
+     * @return mixed
+     */
+    public function setOptions(array $options);
 }

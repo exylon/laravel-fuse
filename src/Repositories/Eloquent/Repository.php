@@ -45,17 +45,22 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     protected $transformer = null;
 
-
     /**
      * @var \Exylon\Fuse\Contracts\Transformer
      */
     protected $defaultTransformer = null;
 
+    /**
+     * @var array
+     */
+    protected $options;
 
-    public function __construct(Model $model)
+
+    public function __construct(Model $model, array $options = [])
     {
         $this->originalModel = $model;
         $this->reset();
+        $this->setOptions($options);
     }
 
 
@@ -79,6 +84,42 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         }
         $this->reset();
         return $results;
+    }
+
+    /**
+     * Returns a chunk of entities
+     *
+     * @param int   $limit
+     * @param array $columns
+     * @param null  $page
+     *
+     * @return mixed
+     */
+    public function paginate(int $limit, array $columns = array('*'), $page = null)
+    {
+        $pageName = $this->options['page_name'];
+        $method = $this->options['pagination_method'];
+
+        switch ($method) {
+            case null:
+            case 'length_aware':
+                $method = 'paginate';
+                break;
+            case 'simple':
+                $method = 'simplePaginate';
+                break;
+        }
+
+        $paginator = $this->model->{$method}($limit, $columns, $pageName, $page);
+        $paginator
+            ->getCollection()
+            ->transform(function ($item) {
+                return $this->transform($item);
+            });
+
+        $this->reset();
+
+        return $paginator;
     }
 
     /**
@@ -393,4 +434,15 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         return null;
     }
 
+    /**
+     * Overrides the default settings for this repository
+     *
+     * @param array $options
+     *
+     * @return mixed
+     */
+    public function setOptions(array $options)
+    {
+        $options = array_merge(config('fuse.repository'), $options);
+    }
 }
