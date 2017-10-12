@@ -4,6 +4,7 @@
 namespace Exylon\Fuse\Repositories\Eloquent;
 
 
+use Exylon\Fuse\Repositories\Entity;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -367,15 +368,19 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     {
         if ($this->enableTransformer) {
             if (($callback = $this->getTransformerCallback($this->transformer)) !== null) {
-                $model = call_user_func($callback, $model);
+                $result = call_user_func($callback, $model);
             } elseif ($model instanceof $this->model && ($callback = $this->getTransformerCallback($this->defaultTransformer)) !== null) {
-                $model = call_user_func($callback, $model);
+                $result = call_user_func($callback, $model);
+            } else {
+                $result = new Entity($model->toArray());
             }
+        } else {
+            $result = new Entity($model->toArray());
         }
 
         $this->resetTransfomer();
 
-        return $model;
+        return $result;
     }
 
     private function getTransformerCallback(&$transformer)
