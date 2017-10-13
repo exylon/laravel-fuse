@@ -138,7 +138,6 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         $model = $this->model->newInstance();
         $model->forceFill($attributes);
         $model->save();
-        $model = $model->fresh();
         $this->reset();
 
         return $this->transform($model);
@@ -180,7 +179,6 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         $model = $this->_findOrFail($id);
         $model->forceFill($data);
         $model->save();
-        $model = $model->fresh();
         $this->reset();
 
         return $this->transform($model);

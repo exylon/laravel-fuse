@@ -17,6 +17,8 @@ class Entity extends Attributes
     public function __construct(array $attributes, $primaryKey)
     {
         parent::__construct($attributes);
+
+        $this->key = $primaryKey;
     }
 
     /**
