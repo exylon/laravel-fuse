@@ -510,14 +510,21 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             if (is_assoc($value)) {
                 $options = array_merge([
                     'method'     => '',
-                    'operation'  => '=',
+                    'operation'  => null,
                     'parameters' => null
                 ], $value);
 
-                $this->model = call_user_func([
+                $parameters = [];
+                $parameters[] = $field;
+                if (empty($options['method']) && isset($options['operation'])) {
+                    $parameters[] = $options['operation'];
+                }
+                $parameters[] = $options['parameters'];
+
+                $this->model = call_user_func_array([
                     $this->model,
                     ($orWhere ? 'orWhere' : 'where') . title_case($options['method'])
-                ], $field, $options['operation'], $options['parameters']);
+                ], $parameters);
             } elseif (is_array($value)) {
                 $this->model = call_user_func_array([
                     $this->model,

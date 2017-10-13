@@ -119,7 +119,8 @@ class Sanitizer
             $rule = $this->registeredSanitizers[$rule];
         }
 
-        return Container::getInstance()->call($rule, array_merge([$value], $parameters));
+        return Container::getInstance()->call(is_object($rule) && !is_callable($rule) ? [$rule, 'sanitize'] : $rule,
+            array_merge([$value], $parameters));
     }
 
     public function register(string $name, $callback)

@@ -424,6 +424,18 @@ class EloquentRepositoryTest extends TestCase
         $this->assertInstanceOf(Collection::class, $results);
         $this->assertInstanceOf(Entity::class, $results->first());
         $this->assertCount(6, $results);
+
+
+        $results = $repo->findAllWhere([
+            'id' => [
+                'method'     => 'between',
+                'parameters' => [1, 3]
+            ]
+        ]);
+
+        $this->assertInstanceOf(Collection::class, $results);
+        $this->assertInstanceOf(Entity::class, $results->first());
+        $this->assertCount(3, $results);
     }
 
 }
