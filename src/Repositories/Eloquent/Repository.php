@@ -138,6 +138,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         $model = $this->model->newInstance();
         $model->forceFill($attributes);
         $model->save();
+        $model = $model->fresh();
         $this->reset();
 
         return $this->transform($model);
@@ -179,6 +180,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         $model = $this->_findOrFail($id);
         $model->forceFill($data);
         $model->save();
+        $model = $model->fresh();
         $this->reset();
 
         return $this->transform($model);
@@ -210,7 +212,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function find($id, array $columns = array('*'))
     {
-        $model = $this->_findOrFail($id);
+        $model = $this->_findOrFail($id, true);
         $this->reset();
 
         return $this->transform($model);
@@ -432,13 +434,14 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
 
     /**
      * @param mixed $model
+     * @param bool  $forceFresh
      *
-     * @return Model
+     * @return \Illuminate\Database\Eloquent\Model
      */
-    protected function _findOrFail($model)
+    protected function _findOrFail($model, bool $forceFresh = false)
     {
         if ($model instanceof $this->originalModel) {
-            return $model;
+            return $forceFresh ? $model->fresh() : $model;
         }
         if ($model instanceof Entity) {
             $model = $model->getKey();
