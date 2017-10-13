@@ -1,7 +1,8 @@
 <?php
 
+namespace Tests;
 
-class SanitizerTest extends \PHPUnit\Framework\TestCase
+class SanitizerTest extends TestCase
 {
 
     public function testGlobalSanitizer()
@@ -47,11 +48,11 @@ class SanitizerTest extends \PHPUnit\Framework\TestCase
         $this->assertEquals('example@example.com',
             $sanitizer->sanitizeValue('  EXAMPLE@EXAMPLE.COM   ', [
                 'trim',
-                '\SanitizerHelper@toLower'
+                'Tests\SanitizerHelper@toLower'
             ]));
         $this->assertEquals('example@example.com',
             $sanitizer->sanitizeValue('  EXAMPLE@EXAMPLE.COM   ',
-                'trim|\SanitizerHelper@toLower'
+                'trim|Tests\SanitizerHelper@toLower'
             ));
     }
 
@@ -113,7 +114,7 @@ class SanitizerTest extends \PHPUnit\Framework\TestCase
         $sanitizer->register('slugify', function ($item) {
             return str_slug($item);
         });
-        $sanitizer->register('upper', '\SanitizerHelper@toUpper');
+        $sanitizer->register('upper', 'Tests\SanitizerHelper@toUpper');
         $this->assertEquals('foo-bar',
             $sanitizer->sanitizeValue('Foo Bar', 'trim|slugify'));
         $this->assertEquals('FOO BAR',

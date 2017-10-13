@@ -5,6 +5,7 @@ namespace Exylon\Fuse\Repositories\Eloquent;
 
 
 use Exylon\Fuse\Repositories\Entity;
+use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
@@ -53,14 +54,19 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     /**
      * @var array
      */
-    protected $options;
+    protected $defaultOptions;
+
+    /**
+     * @var array
+     */
+    protected $options = [];
 
 
     public function __construct(Model $model, array $options = [])
     {
         $this->originalModel = $model;
         $this->reset();
-        $this->setOptions($options);
+        $this->setDefaultOptions($options);
     }
 
 
@@ -90,24 +96,34 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      * Returns a chunk of entities
      *
      * @param int   $limit
-     * @param array $columns
      * @param null  $page
+     * @param array $columns
      *
      * @return mixed
      */
-    public function paginate(int $limit, array $columns = array('*'), $page = null)
+    public function paginate(int $limit, $page = null, array $columns = array('*'))
     {
-        $pageName = $this->options['page_name'];
-        $method = $this->options['pagination_method'];
+        return $this->paginateWhere([], $limit, $page, $columns);
+    }
 
-        switch ($method) {
-            case null:
-            case 'length_aware':
-                $method = 'paginate';
-                break;
-            case 'simple':
-                $method = 'simplePaginate';
-                break;
+    /**
+     * Returns a chunk of entities given the set of conditions
+     *
+     * @param array $where
+     * @param int   $limit
+     * @param null  $page
+     * @param array $columns
+     *
+     * @return mixed
+     */
+    public function paginateWhere(array $where, int $limit, $page = null, array $columns = array('*'))
+    {
+        $options = $this->getOptions();
+        $pageName = $options['page_name'];
+        $method = $this->resolvePaginationMethod($options['pagination_method']);
+
+        foreach ($where as $field => $value) {
+            $this->model = $this->model->where($field, $value);
         }
 
         $paginator = $this->model->{$method}($limit, $columns, $pageName, $page);
@@ -135,7 +151,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             \Validator::validate($attributes, $this->createRules);
         }
 
-        $model = $this->model->newInstance();
+        $model = $this->originalModel->newInstance();
         $model->forceFill($attributes);
         $model->save();
         $this->reset();
@@ -156,7 +172,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             \Validator::validate($attributes, $this->createRules);
         }
 
-        $model = $this->model->newInstance();
+        $model = $this->originalModel->newInstance();
         $model->forceFill($attributes);
         $this->reset();
 
@@ -184,12 +200,27 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         return $this->transform($model);
     }
 
+
+    /**
+     * Find and update an entity
+     *
+     * @param array $where
+     * @param array $data
+     *
+     * @return mixed
+     */
+    public function updateWhere(array $where, array $data)
+    {
+        $entity = $this->findWhere($where);
+        return $this->update($entity, $data);
+    }
+
     /**
      * Deletes an entity from the repository
      *
      * @param mixed $id
      *
-     * @return mixed
+     * @return boolean
      */
     public function delete($id)
     {
@@ -198,6 +229,20 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         $this->reset();
 
         return $deleted;
+    }
+
+
+    /**
+     * Find and delete an entity
+     *
+     * @param array $where
+     *
+     * @return boolean
+     */
+    public function deleteWhere(array $where)
+    {
+        $entity = $this->findWhere($where);
+        return $this->delete($entity);
     }
 
     /**
@@ -227,10 +272,9 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function findBy($field, $value, $columns = array('*'))
     {
-        $model = $this->model->where($field, $value)->firstOrFail($columns);
-        $this->reset();
-
-        return $this->transform($model);
+        return $this->findWhere([
+            $field => $value
+        ], $columns);
     }
 
     /**
@@ -244,12 +288,9 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function findAllBy($field, $value, $columns = array('*'))
     {
-        $results = $this->model->where($field, $value)->get($columns)->map(function ($item) {
-            return $this->transform($item);
-        });
-        $this->reset();
-
-        return $results;
+        return $this->findAllWhere([
+            $field => $value
+        ], $columns);
     }
 
     /**
@@ -281,6 +322,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function findAllWhere(array $where, $columns = array('*'))
     {
+
         foreach ($where as $field => $value) {
             $this->model = $this->model->where($field, $value);
         }
@@ -379,63 +421,80 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     }
 
     /**
-     * Resets the model builder
+     * Overrides the default settings for this repository
+     *
+     * @param array $defaultOptions
+     *
+     * @return mixed
      */
+    public function setDefaultOptions(array $defaultOptions)
+    {
+        $this->defaultOptions = $defaultOptions;
+    }
+
+
+    /**
+     * Use options
+     *
+     * @param array $options
+     *
+     * @return $this
+     */
+    public function withOptions(array $options)
+    {
+        $this->options = $options;
+        return $this;
+    }
+
     protected function reset()
     {
         $this->model = $this->originalModel->newInstance();
         $this->enableValidation = false;
+        $this->options = [];
     }
 
-    protected function resetTransfomer()
+    protected function resetTransformer()
     {
         $this->transformer = null;
         $this->enableTransformer = true;
     }
 
-
-    /**
-     * Override this method if you do not intend to return a pure Eloquent model
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     *
-     * @return mixed
-     */
     protected function transform(Model $model)
     {
         if ($this->enableTransformer) {
-            if (($callback = $this->getTransformerCallback($this->transformer)) !== null) {
-                $result = call_user_func($callback, $model);
-            } elseif ($model instanceof $this->model && ($callback = $this->getTransformerCallback($this->defaultTransformer)) !== null) {
-                $result = call_user_func($callback, $model);
+            if (($callback = $this->getTransformerCallback($this->transformer, $this->defaultTransformer)) !== null) {
+                $result = $this->executeTransformer($callback, $model);
             } else {
-                $result = new Entity($model->toArray(), $model->getKey());
+                $result = new Entity($model->getKey(), $model->toArray());
             }
         } else {
-            $result = new Entity($model->toArray(), $model->getKey());
+            $result = new Entity($model->getKey(), $model->toArray());
         }
 
-        $this->resetTransfomer();
+        $this->resetTransformer();
 
         return $result;
     }
 
-    private function getTransformerCallback(&$transformer)
+    private function getTransformerCallback($transformer, $defaultTransformer = null)
     {
-        if (is_callable($transformer)) {
+        if (is_callable($transformer) || is_string($transformer) || is_array($transformer)) {
             return $transformer;
-        } elseif (method_exists($transformer, 'transform')) {
-            return array($transformer, 'transform');
+        } elseif (is_object($transformer)) {
+            return [$transformer, 'transform'];
         }
-        return null;
+        return $defaultTransformer === null ? null : $this->getTransformerCallback($defaultTransformer);
     }
 
-    /**
-     * @param mixed $model
-     * @param bool  $forceFresh
-     *
-     * @return \Illuminate\Database\Eloquent\Model
-     */
+    private function executeTransformer($callback, $model)
+    {
+        if (is_callable($callback)) {
+            return call_user_func($callback, $model);
+        }
+        return Container::getInstance()->call($callback);
+    }
+
+
     protected function _findOrFail($model, bool $forceFresh = false)
     {
         if ($model instanceof $this->originalModel) {
@@ -447,15 +506,26 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         return $this->model->findOrFail($model);
     }
 
-    /**
-     * Overrides the default settings for this repository
-     *
-     * @param array $options
-     *
-     * @return mixed
-     */
-    public function setOptions(array $options)
+
+    protected function getOptions()
     {
-        $this->options = array_merge(config('fuse.repository'), $options);
+        return array_merge(
+            config('fuse.repository') ?: [],
+            $this->defaultOptions ?: [],
+            $this->options ?: []);
+    }
+
+    protected function resolvePaginationMethod($method)
+    {
+        switch ($method) {
+            case null:
+            case 'length_aware':
+                $method = 'paginate';
+                break;
+            case 'simple':
+                $method = 'simplePaginate';
+                break;
+        }
+        return $method;
     }
 }

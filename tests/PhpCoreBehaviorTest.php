@@ -1,7 +1,8 @@
 <?php
 
+namespace Tests;
 
-class PhpCoreBehaviorTest extends \PHPUnit\Framework\TestCase
+class PhpCoreBehaviorTest extends TestCase
 {
     public function testInstanceOf()
     {

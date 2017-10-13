@@ -14,9 +14,9 @@ class Entity extends Attributes
      */
     protected $key;
 
-    public function __construct(array $attributes, $primaryKey)
+    public function __construct($primaryKey, array $attributes, array $aliases = [])
     {
-        parent::__construct($attributes);
+        parent::__construct($attributes, $aliases);
 
         $this->key = $primaryKey;
     }

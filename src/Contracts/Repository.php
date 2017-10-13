@@ -19,11 +19,25 @@ interface Repository
      * Returns a chunk of entities
      *
      * @param int   $limit
+     * @param null  $page
      * @param array $columns
      *
      * @return mixed
      */
-    public function paginate(int $limit, array $columns = array('*'));
+    public function paginate(int $limit, $page = null, array $columns = array('*'));
+
+
+    /**
+     * Returns a chunk of entities given the set of conditions
+     *
+     * @param array $where
+     * @param int   $limit
+     * @param null  $page
+     * @param array $columns
+     *
+     * @return mixed
+     */
+    public function paginateWhere(array $where, int $limit, $page = null, array $columns = array('*'));
 
     /**
      * Creates and persists an entity
@@ -54,13 +68,32 @@ interface Repository
     public function update($id, array $data);
 
     /**
+     * Find and update an entity
+     *
+     * @param array $where
+     * @param array $data
+     *
+     * @return mixed
+     */
+    public function updateWhere(array $where, array $data);
+
+    /**
      * Deletes an entity from the repository
      *
      * @param mixed $id
      *
-     * @return mixed
+     * @return boolean
      */
     public function delete($id);
+
+    /**
+     * Find and delete an entity
+     *
+     * @param array $where
+     *
+     * @return boolean
+     */
+    public function deleteWhere(array $where);
 
     /**
      * Find entity by id
@@ -149,6 +182,15 @@ interface Repository
     public function withoutTransformer();
 
     /**
+     * Sets the default transformer
+     *
+     * @param \Exylon\Fuse\Contracts\Transformer|\Closure|mixed|null $transformer
+     *
+     * @return mixed
+     */
+    public function setDefaultTransformer($transformer);
+
+    /**
      * Sets the validation rules.
      * If update rules are not provided, it will have
      * the same value as create rules
@@ -160,21 +202,22 @@ interface Repository
      */
     public function setValidationRules(array $create, array $update = null);
 
-    /**
-     * Sets the default transformer
-     *
-     * @param \Exylon\Fuse\Contracts\Transformer|\Closure|mixed|null $transformer
-     *
-     * @return mixed
-     */
-    public function setDefaultTransformer($transformer);
 
     /**
-     * Overrides the default settings for this repository
+     * Overrides the default options for this repository
      *
      * @param array $options
      *
      * @return mixed
      */
-    public function setOptions(array $options);
+    public function setDefaultOptions(array $options);
+
+    /**
+     * Use options
+     *
+     * @param array $options
+     *
+     * @return $this
+     */
+    public function withOptions(array $options);
 }

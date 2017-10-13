@@ -1,11 +1,12 @@
 <?php
 
+namespace Tests;
 
 use Exylon\Fuse\Support\Arr;
 use Exylon\Fuse\Support\Attributes;
 use Illuminate\Support\Collection;
 
-class SupportHelperTest extends \PHPUnit\Framework\TestCase
+class SupportHelperTest extends TestCase
 {
 
     public function testStrReplaceAssoc()

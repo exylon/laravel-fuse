@@ -8,6 +8,8 @@ use Exylon\Fuse\Support\Attributes;
 use Exylon\Fuse\Support\Sanitizer;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use Illuminate\Support\ServiceProvider;
 
 class FuseServiceProvider extends ServiceProvider
