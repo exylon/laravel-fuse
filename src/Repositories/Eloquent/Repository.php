@@ -176,7 +176,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         if ($this->enableValidation && !empty($this->updateRules)) {
             \Validator::validate($data, $this->updateRules);
         }
-        $model = $id instanceof $this->model ? $id : $this->model->findOrFail($id);
+        $model = $this->_findOrFail($id);
         $model->forceFill($data);
         $model->save();
         $this->reset();
@@ -193,7 +193,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function delete($id)
     {
-        $model = $this->model->findOrFail($id);
+        $model = $this->_findOrFail($id);
         $deleted = $model->delete();
         $this->reset();
 
@@ -210,11 +210,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function find($id, array $columns = array('*'))
     {
-        if (!($id instanceof $this->model)) {
-            $model = $this->model->findOrFail($id, $columns);
-        } else {
-            $model = $id;
-        }
+        $model = $this->_findOrFail($id);
         $this->reset();
 
         return $this->transform($model);
@@ -413,10 +409,10 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             } elseif ($model instanceof $this->model && ($callback = $this->getTransformerCallback($this->defaultTransformer)) !== null) {
                 $result = call_user_func($callback, $model);
             } else {
-                $result = new Entity($model->toArray());
+                $result = new Entity($model->toArray(), $model->getKey());
             }
         } else {
-            $result = new Entity($model->toArray());
+            $result = new Entity($model->toArray(), $model->getKey());
         }
 
         $this->resetTransfomer();
@@ -432,6 +428,22 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             return array($transformer, 'transform');
         }
         return null;
+    }
+
+    /**
+     * @param mixed $model
+     *
+     * @return Model
+     */
+    protected function _findOrFail($model)
+    {
+        if ($model instanceof $this->originalModel) {
+            return $model;
+        }
+        if ($model instanceof Entity) {
+            $model = $model->getKey();
+        }
+        return $this->model->findOrFail($model);
     }
 
     /**

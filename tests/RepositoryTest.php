@@ -14,6 +14,9 @@ class RepositoryTest extends \PHPUnit\Framework\TestCase
         parent::setUp();
 
 
+
+
+
         $this->repository = new \Exylon\Fuse\Repositories\Eloquent\Repository($this->createMockedModel());
     }
 
