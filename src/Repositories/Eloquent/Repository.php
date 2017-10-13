@@ -8,6 +8,7 @@ use Exylon\Fuse\Repositories\Entity;
 use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 
 class Repository implements \Exylon\Fuse\Contracts\Repository
 {
@@ -122,9 +123,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         $pageName = $options['page_name'];
         $method = $this->resolvePaginationMethod($options['pagination_method']);
 
-        foreach ($where as $field => $value) {
-            $this->model = $this->model->where($field, $value);
-        }
+        $this->applyWhereClauses($where);
 
         $paginator = $this->model->{$method}($limit, $columns, $pageName, $page);
         $paginator
@@ -303,9 +302,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function findWhere(array $where, $columns = array('*'))
     {
-        foreach ($where as $field => $value) {
-            $this->model = $this->model->where($field, $value);
-        }
+        $this->applyWhereClauses($where);
         $model = $this->model->firstOrFail($columns);
         $this->reset();
 
@@ -323,9 +320,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     public function findAllWhere(array $where, $columns = array('*'))
     {
 
-        foreach ($where as $field => $value) {
-            $this->model = $this->model->where($field, $value);
-        }
+        $this->applyWhereClauses($where);
         $results = $this->model->get($columns)->map(function ($item) {
             return $this->transform($item);
         });
@@ -504,6 +499,35 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             $model = $model->getKey();
         }
         return $this->model->findOrFail($model);
+    }
+
+
+    protected function applyWhereClauses(array $where)
+    {
+        foreach ($where as $field => $value) {
+            $orWhere = Str::startsWith($field, 'or-');
+            $field = trim(str_replace_first('or-', '', $field), '-');
+            if (is_assoc($value)) {
+                $options = array_merge([
+                    'method'     => '',
+                    'operation'  => '=',
+                    'parameters' => null
+                ], $value);
+
+                $this->model = call_user_func([
+                    $this->model,
+                    ($orWhere ? 'orWhere' : 'where') . title_case($options['method'])
+                ], $field, $options['operation'], $options['parameters']);
+            } elseif (is_array($value)) {
+                $this->model = call_user_func_array([
+                    $this->model,
+                    ($orWhere ? 'orWhere' : 'where')
+                ], array_merge([$field], $value));
+            } else {
+                $this->model = $this->model->where($field, $value);
+            }
+        }
+
     }
 
 

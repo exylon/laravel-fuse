@@ -372,4 +372,58 @@ class EloquentRepositoryTest extends TestCase
         $this->assertTrue($results->hasMorePages());
     }
 
+    public function testComplexWhere()
+    {
+        $repo = new Repository(new User());
+
+        $repo->create([
+            'name' => 'Mike Doner'
+        ]);
+        $repo->create([
+            'name' => 'Mike Kasmer'
+        ]);
+        $repo->create([
+            'name' => 'Mike Hyde'
+        ]);
+
+        $results = $repo->findAllWhere([
+            'name' => ['like', 'Mike%'],
+        ]);
+        $this->assertInstanceOf(Collection::class, $results);
+        $this->assertInstanceOf(Entity::class, $results->first());
+        $this->assertCount(3, $results);
+
+        $repo->create([
+            'name' => 'Sam Hilliard'
+        ]);
+        $repo->create([
+            'name' => 'Sam Layton'
+        ]);
+        $repo->create([
+            'name' => 'Sam Bullock'
+        ]);
+
+        $results = $repo->findAllWhere([
+            'name'     => ['like', 'Mike%'],
+            'or--name' => [
+                'operation'  => 'like',
+                'parameters' => 'Sam%'
+            ]
+        ]);
+
+        $this->assertInstanceOf(Collection::class, $results);
+        $this->assertInstanceOf(Entity::class, $results->first());
+        $this->assertCount(6, $results);
+
+
+        $results = $repo->findAllWhere([
+            'name'    => ['like', 'Mike%'],
+            'or-name' => ['like', 'Sam%']
+        ]);
+
+        $this->assertInstanceOf(Collection::class, $results);
+        $this->assertInstanceOf(Entity::class, $results->first());
+        $this->assertCount(6, $results);
+    }
+
 }
