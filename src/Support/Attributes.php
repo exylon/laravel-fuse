@@ -188,6 +188,6 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
 
     public function toCollection()
     {
-        return new Collection($this->attributes);
+        return Collection::make($this->attributes);
     }
 }
