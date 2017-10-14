@@ -142,6 +142,5 @@ class SupportHelperTest extends TestCase
         $this->assertEquals('apple', $arr['red']);
         $this->assertEquals('apple', $arr['pula']);
         $this->assertEquals('foo', $arr['yellow']['mangoes']);
-        $this->assertInstanceOf(Collection::class, $arr->toCollection());
     }
 }

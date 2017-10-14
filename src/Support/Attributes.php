@@ -10,7 +10,6 @@ use Countable;
 use Exception;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
-use Illuminate\Support\Collection;
 use JsonSerializable;
 
 class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregate, Jsonable, JsonSerializable
@@ -184,10 +183,5 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
     public function __set($key, $value)
     {
         $this->offsetSet($key, $value);
-    }
-
-    public function toCollection()
-    {
-        return Collection::make($this->attributes);
     }
 }
