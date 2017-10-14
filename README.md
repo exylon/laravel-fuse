@@ -267,25 +267,27 @@ Sample:
 $email = FuseSanitizer::sanitizeValue('    EXAMPLE@EXAMPLE.COM    ',['trim','strtolower']); // 'example@example.com'
 ```
 
-#### Rule formats
+#### Rule Set Formats
 
-##### Pipe separated (`|`) Rules
+##### Using pipe (`|`) separated rules
 ```php
 $email = FuseSanitizer::sanitizeValue('    EXAMPLE@EXAMPLE.COM    ','trim|strtolower'); // 'example@example.com'
 ```
 
 
-##### Array-type Rules
+##### Using array
 ```php
 $email = FuseSanitizer::sanitizeValue('    EXAMPLE@EXAMPLE.COM    ', ['trim','strtolower']); // 'example@example.com'
 ```
 
-##### Callback Rules
+##### Using callbacks
 ```php
 $email = FuseSanitizer::sanitizeValue('    EXAMPLE@EXAMPLE.COM    ', ['trim',function($value){
     return strtolower($value);
 }]); // 'example@example.com'
 ```
+
+##### Using class/method pair
 ```php
 $email = FuseSanitizer::sanitizeValue('    EXAMPLE@EXAMPLE.COM    ', ['trim','App\\Support\\SanitizerHelper@toLower']); // 'example@example.com'
 ```
