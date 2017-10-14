@@ -1,9 +1,10 @@
 <?php
 
 
-namespace Exylon\Fuse\Support;
+namespace Exylon\Fuse\Sanitizer;
 
 
+use Exylon\Fuse\Support\Arr;
 use Illuminate\Container\Container;
 use Illuminate\Support\Str;
 
@@ -47,15 +48,23 @@ class Sanitizer
         $ignoreGlobalRules = $ignoreGlobalRules || empty($this->globalRules);
 
         foreach ($data as $field => $value) {
+
+            // Global Wildcard
             if (!$ignoreGlobalRules && array_key_exists('*', $this->globalRules)) {
                 $data[$field] = $this->sanitizeValue($data[$field], $this->globalRules['*']);
             }
+
+            // Global Rules
             if (!$ignoreGlobalRules && array_key_exists($field, $this->globalRules)) {
                 $data[$field] = $this->sanitizeValue($data[$field], $this->globalRules[$field]);
             }
+
+            // Field Wildcard
             if (array_key_exists('*', $rules)) {
                 $data[$field] = $this->sanitizeValue($data[$field], $rules['*']);
             }
+
+            // Field Rules
             if (array_key_exists($field, $rules)) {
                 $data[$field] = $this->sanitizeValue($data[$field], $rules[$field]);
             }
@@ -108,7 +117,10 @@ class Sanitizer
             'array',
             'int',
             'float',
-            'double'
+            'double',
+            'long',
+            'numeric',
+            'integer'
         ];
         // Let's skip sanitation rule if it's not applicable to the data type
         if (is_string($rule) && in_array($dataType, $allowedDataTypes) && !call_user_func('is_' . $dataType, $value)) {

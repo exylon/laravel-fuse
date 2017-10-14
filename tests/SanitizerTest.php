@@ -2,12 +2,14 @@
 
 namespace Tests;
 
+use Exylon\Fuse\Sanitizer\Sanitizer;
+
 class SanitizerTest extends TestCase
 {
 
     public function testGlobalSanitizer()
     {
-        $sanitizer = new \Exylon\Fuse\Support\Sanitizer();
+        $sanitizer = \Exylon\Fuse\Facades\Sanitizer::getFacadeRoot();
         $rules = [
             '*'     => 'trim::string',
             'email' => 'strtolower',
@@ -35,7 +37,7 @@ class SanitizerTest extends TestCase
 
     public function testValueSanitizer()
     {
-        $sanitizer = new \Exylon\Fuse\Support\Sanitizer();
+        $sanitizer = \Exylon\Fuse\Facades\Sanitizer::getFacadeRoot();
         $this->assertEquals('example@example.com',
             $sanitizer->sanitizeValue('  EXAMPLE@EXAMPLE.COM   ', 'trim|strtolower'));
         $this->assertEquals('example@example.com',
@@ -58,7 +60,7 @@ class SanitizerTest extends TestCase
 
     public function testInlineSanitizer()
     {
-        $sanitizer = new \Exylon\Fuse\Support\Sanitizer();
+        $sanitizer = \Exylon\Fuse\Facades\Sanitizer::getFacadeRoot();
         $rules = [
             '*'     => 'trim::string',
             'email' => 'strtolower',
@@ -84,7 +86,7 @@ class SanitizerTest extends TestCase
     public function testInlineWithGlobalSanitizer()
     {
 
-        $sanitizer = new \Exylon\Fuse\Support\Sanitizer();
+        $sanitizer = \Exylon\Fuse\Facades\Sanitizer::getFacadeRoot();
         $globalRules = [
             'email' => 'trim',
             'names' => function ($arr) {
@@ -110,7 +112,7 @@ class SanitizerTest extends TestCase
 
     public function testCustomSanitizers()
     {
-        $sanitizer = new \Exylon\Fuse\Support\Sanitizer();
+        $sanitizer = \Exylon\Fuse\Facades\Sanitizer::getFacadeRoot();
         $sanitizer->register('slugify', function ($item) {
             return str_slug($item);
         });
