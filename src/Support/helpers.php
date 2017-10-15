@@ -16,18 +16,25 @@ if (!function_exists('str_replace_assoc')) {
 if (!function_exists('validate')) {
 
     /**
-     * Shorthand validation
+     * Validates and extracts validated data
      *
      * @param array $data
      * @param array $rules
      * @param array $messages
      * @param array $customAttributes
+     *
+     * @return array
      */
-    function validate(array $data, array $rules,$messages = array(), $customAttributes = array())
+    function validate(array $data, array $rules, $messages = array(), $customAttributes = array())
     {
-        Illuminate\Support\Facades\Validator::validate($data, $rules,$messages,$customAttributes);
+        Illuminate\Support\Facades\Validator::validate($data, $rules, $messages, $customAttributes);
+
+        return array_only($data, collect($rules)->keys()->map(function ($rule) {
+            return str_contains($rule, '.') ? explode('.', $rule)[0] : $rule;
+        })->unique()->toArray());
     }
 }
+
 
 if (!function_exists('str_random_hex')) {
     /**

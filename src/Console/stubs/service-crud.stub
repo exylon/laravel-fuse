@@ -19,16 +19,16 @@ class DummyClass
 
     public function create(array $attributes)
     {
-        validate($attributes, $this->getCreateValidationRules());
+        $validated = validate($attributes, $this->getCreateValidationRules());
 
-        $this->dummyRepositoryName->create($attributes);
+        $this->dummyRepositoryName->create($validated);
     }
 
     public function update($id, array $attributes)
     {
-        validate($attributes, $this->getUpdateValidationRules());
+        $validated = validate($attributes, $this->getUpdateValidationRules());
 
-        $this->dummyRepositoryName->update($id, $attributes);
+        $this->dummyRepositoryName->update($id, $validated);
     }
 
     public function delete($id)

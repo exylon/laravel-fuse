@@ -5,6 +5,7 @@ namespace Tests;
 use Exylon\Fuse\Support\Arr;
 use Exylon\Fuse\Support\Attributes;
 use Exylon\Fuse\Support\Eloquent\CascadeDelete;
+use Illuminate\Validation\ValidationException;
 use Tests\Models\Customer;
 
 class SupportHelperTest extends TestCase
@@ -26,6 +27,34 @@ class SupportHelperTest extends TestCase
             'red'   => 'orange'
         ], "apples are color red"));
 
+    }
+
+    public function testValidate()
+    {
+        $validated = validate([
+            'name' => 'John Howe',
+            'age'  => 24
+        ], [
+            'name' => 'string'
+        ]);
+
+        $this->assertArraySubset([
+            'name' => 'John Howe'
+        ], $validated, true);
+        $this->assertArrayNotHasKey('age', $validated);
+    }
+
+    public function testFailedValidate()
+    {
+        $this->expectException(ValidationException::class);
+
+        $validated = validate([
+            'name' => 'John Howe',
+            'age'  => 24
+        ], [
+            'name' => 'numeric',
+            'age'  => 'string'
+        ]);
     }
 
     public function testRandomHexString()
