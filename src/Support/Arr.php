@@ -16,19 +16,6 @@ class Arr
         return $arr;
     }
 
-    public static function isAssoc($array)
-    {
-        if (!is_array($array)) {
-            return false;
-        }
-        foreach ($array as $key => $value) {
-            if (!is_int($key)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Flatten a multi-dimensional associative array with dots and skips linear arrays
      *
@@ -42,7 +29,7 @@ class Arr
         $results = [];
 
         foreach ($array as $key => $value) {
-            if (is_assoc($value) && !empty($value)) {
+            if (is_array($value) && \Illuminate\Support\Arr::isAssoc($value) && !empty($value)) {
                 $results = array_merge($results, static::dot($value, $prepend . $key . '.'));
             } else {
                 $results[$prepend . $key] = $value;

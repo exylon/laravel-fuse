@@ -8,6 +8,7 @@ use Exylon\Fuse\Repositories\Entity;
 use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
 class Repository implements \Exylon\Fuse\Contracts\Repository
@@ -522,7 +523,8 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         foreach ($where as $field => $value) {
             $orWhere = Str::startsWith($field, 'or-');
             $field = trim(str_replace_first('or-', '', $field), '-');
-            if (is_assoc($value)) {
+
+            if (is_array($value) && Arr::isAssoc($value)) {
                 $options = array_merge([
                     'method'     => '',
                     'operation'  => null,

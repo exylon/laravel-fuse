@@ -102,21 +102,6 @@ if (!function_exists('array_dot_reverse')) {
 }
 
 
-if (!function_exists('is_assoc')) {
-
-    /**
-     * Checks if the given array is an associative array
-     *
-     * @param mixed $array
-     *
-     * @return bool
-     */
-    function is_assoc($array)
-    {
-        return \Exylon\Fuse\Support\Arr::isAssoc($array);
-    }
-}
-
 if (!function_exists('has_trait')) {
     /**
      * Checks if an object or class has the given trait

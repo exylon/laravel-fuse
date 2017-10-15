@@ -80,23 +80,6 @@ class SupportHelperTest extends TestCase
         ], $test);
     }
 
-    public function testArrayIsAssoc()
-    {
-        $this->assertTrue(Arr::isAssoc([
-            'foo' => 'bar'
-        ]));
-        $this->assertFalse(Arr::isAssoc([
-            'foo',
-            'bar'
-        ]));
-        $this->assertFalse(Arr::isAssoc([
-            '0' => 'bar'
-        ]));
-        $this->assertFalse(Arr::isAssoc([
-            0 => 'bar'
-        ]));
-    }
-
     public function testArrayDot()
     {
         $this->assertArraySubset([
