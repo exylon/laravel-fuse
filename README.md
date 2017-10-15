@@ -97,7 +97,9 @@ $var = proper_case('lorem_ipsum-dolor',['_','-']) // Lorem Ipsum Dolor
 
 <br/>
 
-## The `\Exylon\Fuse\Support\Attributes` class
+## Helper Traits and Classes
+
+### `\Exylon\Fuse\Support\Attributes`
 
 Associative array on steroids. 
 Converts regular associative array to standard objects
@@ -140,15 +142,9 @@ echo $arr['pula']; // "apple"
 echo $arr->pula; // "apple"
 ```
 
-#### `Attributes::toCollection()`
-Converts the attributes to `Illuminate\Support\Collection`
-
 #### `Attributes::toJson($options=0)`
 Converts the attributes to json
 
-<br/>
-
-## Helper Traits
 
 ### `\Exylon\Fuse\Support\Eloquent\CascadeDelete`
 Enables cascade delete on the PHP side. Useful for polymorphic relationships.
