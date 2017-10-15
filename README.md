@@ -29,6 +29,7 @@ Basic Usage:
 $ php artisan make:subscriber AuthEventsSubscriber --event="Illuminate\\Auth\\Events\\Login" --event="Illuminate\\Auth\\Events\\Logout" 
 ```
 
+<br/>
 
 #### `php artisan make:repository`
 
@@ -46,6 +47,8 @@ Basic Usage:
 ```bash
 $ php artisan make:repository User --no-interface 
 ```
+
+<br/>
 
 #### `php artisan make:service`
 
@@ -145,6 +148,7 @@ echo $arr->pula; // "apple"
 #### `Attributes::toJson($options=0)`
 Converts the attributes to json
 
+<br/>
 
 ### `\Exylon\Fuse\Support\Eloquent\CascadeDelete`
 Enables cascade delete on the PHP side. Useful for polymorphic relationships.
