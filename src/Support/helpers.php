@@ -20,10 +20,12 @@ if (!function_exists('validate')) {
      *
      * @param array $data
      * @param array $rules
+     * @param array $messages
+     * @param array $customAttributes
      */
-    function validate(array $data, array $rules)
+    function validate(array $data, array $rules,$messages = array(), $customAttributes = array())
     {
-        Illuminate\Support\Facades\Validator::validate($data, $rules);
+        Illuminate\Support\Facades\Validator::validate($data, $rules,$messages,$customAttributes);
     }
 }
 

@@ -19,16 +19,34 @@ class DummyClass
 
     public function create(array $attributes)
     {
+        validate($attributes, $this->getCreateValidationRules());
+
         $this->dummyRepositoryName->create($attributes);
     }
 
     public function update($id, array $attributes)
     {
+        validate($attributes, $this->getUpdateValidationRules());
+
         $this->dummyRepositoryName->update($id, $attributes);
     }
 
     public function delete($id)
     {
         $this->dummyRepositoryName->delete($id);
+    }
+
+    protected function getCreateValidationRules()
+    {
+        return [
+            //
+        ];
+    }
+
+    protected function getUpdateValidationRules()
+    {
+        return [
+            //
+        ];
     }
 }
