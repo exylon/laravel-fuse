@@ -4,6 +4,8 @@ namespace Tests;
 
 use Exylon\Fuse\Support\Arr;
 use Exylon\Fuse\Support\Attributes;
+use Exylon\Fuse\Support\Eloquent\CascadeDelete;
+use Tests\Models\Customer;
 
 class SupportHelperTest extends TestCase
 {
@@ -52,7 +54,7 @@ class SupportHelperTest extends TestCase
         $output = proper_case('lorem_ipsum_dolor_sit-amet', '_');
         $this->assertEquals('Lorem Ipsum Dolor Sit-Amet', $output);
 
-        $output = proper_case('lorem_ipsum_dolor_sit-amet', ['_','-']);
+        $output = proper_case('lorem_ipsum_dolor_sit-amet', ['_', '-']);
         $this->assertEquals('Lorem Ipsum Dolor Sit Amet', $output);
     }
 
@@ -144,5 +146,14 @@ class SupportHelperTest extends TestCase
         $this->assertEquals('apple', $arr['red']);
         $this->assertEquals('apple', $arr['pula']);
         $this->assertEquals('foo', $arr['yellow']['mangoes']);
+    }
+
+    public function testHasTrait()
+    {
+        $customer = new Customer();
+
+        self::assertTrue(has_trait($customer, CascadeDelete::class));
+
+        self::assertTrue(has_trait(Customer::class, CascadeDelete::class));
     }
 }

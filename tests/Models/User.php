@@ -4,6 +4,7 @@
 namespace Tests\Models;
 
 
+use Exylon\Fuse\Support\Eloquent\CascadeDelete;
 use Illuminate\Database\Eloquent\Model;
 
 class User extends Model

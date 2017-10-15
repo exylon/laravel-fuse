@@ -148,6 +148,32 @@ Converts the attributes to json
 
 <br/>
 
+## Helper Traits
+
+### `\Exylon\Fuse\Support\Eloquent\CascadeDelete`
+Enables cascade delete on the PHP side. Useful for polymorphic relationships.
+```php
+/*
+ * 'Team' model can also have payment methods. That's the reason
+ * PaymentMethod is poloymorphic.
+ */
+class Customer extends Model {
+    use CascadeDelete;
+    
+    protected $cascade = [
+        'paymentMethods'
+    ];
+    
+    public function paymentMethods(){
+        return $this->morphMany(PaymentMethod::class,'owner');
+    }
+}
+...
+$customer->delete(); // this will delete all related payment methods
+```
+
+<br/>
+
 ## Helper Macros
 
 #### `Request::location()`

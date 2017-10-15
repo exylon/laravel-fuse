@@ -115,3 +115,18 @@ if (!function_exists('is_assoc')) {
     }
 }
 
+if (!function_exists('has_trait')) {
+    /**
+     * Checks if an object or class has the given trait
+     *
+     * @param        $object
+     * @param string $trait
+     *
+     * @return bool
+     */
+    function has_trait($object, string $trait)
+    {
+        return array_key_exists($trait, class_uses($object));
+    }
+}
+

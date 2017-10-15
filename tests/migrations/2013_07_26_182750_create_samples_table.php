@@ -22,6 +22,28 @@ class CreateSamplesTable extends Migration
             $table->timestamps();
         });
 
+
+        Schema::create('customers', function (Blueprint $table) {
+            $table->increments('id');
+            $table->string('name');
+            $table->timestamps();
+        });
+
+        Schema::create('carts', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('customer_id');
+            $table->string('name');
+            $table->timestamps();
+        });
+
+
+        Schema::create('cart_items', function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('cart_id');
+            $table->string('name');
+            $table->timestamps();
+        });
+
         \Illuminate\Support\Facades\DB::table('users')
             ->insert([
                 'name' => 'John Doe'
