@@ -5,9 +5,9 @@ if (!function_exists('str_replace_assoc')) {
      * @param array $pairs
      * @param       $subject
      *
-     * @return mixed
+     * @return string
      */
-    function str_replace_assoc(array $pairs, $subject)
+    function str_replace_assoc(array $pairs, $subject): string
     {
         return str_replace(array_keys($pairs), array_values($pairs), $subject);
     }
@@ -27,7 +27,7 @@ if (!function_exists('validate')) {
     }
 }
 
-if (!function_exists('random_hex_string')) {
+if (!function_exists('str_random_hex')) {
     /**
      * Generates random hexadecimal string with specified length
      *
@@ -35,7 +35,7 @@ if (!function_exists('random_hex_string')) {
      *
      * @return string
      */
-    function random_hex_string($length)
+    function str_random_hex(int $length): string
     {
         $bytes = random_bytes(($length / 2) + 1);
         $out = bin2hex($bytes);
@@ -44,7 +44,7 @@ if (!function_exists('random_hex_string')) {
     }
 }
 
-if (!function_exists('random_int_string')) {
+if (!function_exists('str_random_int')) {
     /**
      * Generates random integer string with specific length
      *
@@ -54,8 +54,9 @@ if (!function_exists('random_int_string')) {
      *
      * @return string
      */
-    function random_int_string($length, $min = 0, $pad = '0')
+    function str_random_int(int $length, int $min = 0, string $pad = '0'): string
     {
+        $pad = $pad ?: '0';
         $max = pow(10, $length) - 1;
         if ($max > PHP_INT_MAX) {
             $max = PHP_INT_MAX;
@@ -70,15 +71,16 @@ if (!function_exists('random_int_string')) {
 
 if (!function_exists('snake_to_title_case')) {
     /**
-     * Convert snake-cased string to proper title-cased string
+     * Converts a string to proper cased string
      *
      * @param string $str
+     * @param string $delimiters
      *
      * @return string
      */
-    function snake_to_title_case($str)
+    function proper_case(string $str, $delimiters = '_'): string
     {
-        return ucwords(str_replace('_', ' ', $str));
+        return ucwords(str_replace($delimiters, ' ', $str), " \t\r\n\f\v-");
     }
 }
 

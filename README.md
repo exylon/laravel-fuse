@@ -7,7 +7,7 @@ Collection of Laravel utilities
 
 ## Installation
 ```bash
-composer require exylon/fuse
+composer require exylon/fuse:dev-master
 ```
 
 ## Artisan Helpers
@@ -75,20 +75,25 @@ String replace using key-value pair (assoc array).
 #### `validate(array $data, array $rules)`
 Shorthand for `\Validator::validate($data, $rules)`
 
-#### `random_hex_string($length)`
+#### `str_random_hex($length)`
 Generates a random hexadecimal string with fixed length.
 
-Example: `$var = random_hex_string(10) //ffeb09ed56`
+Example: `$var = str_random_hex(10) //ffeb09ed56`
 
-#### `random_int_string($length, $min = 0, $pad = '0')`
+#### `str_random_int($length, $min = 0, $pad = '0')`
 Generates a random numeric string. If the generated numeric string is shorter than the `$length`, it will be padded by the `$pad`.
 
-Example: `$var = random_int_string(5) //01467`
+Example: `$var = str_random_int(5) //01467`
 
-#### `snake_to_title_case($str)`
-Converts a snake-cased formatted string to title case
+#### `proper_case($str,$delimiters = '_')`
+Converts a string to proper cased string
 
-Example: `$var = snake_to_title('lorem_ipsum_dolor') // Lorem Ipsum Dolor`
+Examples: 
+```php
+$var = proper_case('lorem_ipsum_dolor') // Lorem Ipsum Dolor
+$var = proper_case('lorem_ipsum-dolor') // Lorem Ipsum-Dolor
+$var = proper_case('lorem_ipsum-dolor',['_','-']) // Lorem Ipsum Dolor
+```
 
 <br/>
 
@@ -224,7 +229,7 @@ $data = FuseSanitizer::sanitize($data,[
 ```
 The 'email' rule will be only applicable to fields with name 'email'. Int this case, `strtolower` will be called if there exists an 'email' field from the data.
 
-The `*` signifies a wildcard which makes it applicable to "any" data, but take note that the included rule is `trim::string`. The rule is divided into three parts - *function*, *parameters*, *data type* -, which is separated by colon ('`:`'); *parameters* are further divided by comman ('`,`'). By default, data type will be assumed as string. In our case, for the function `trim` we don't need any parameters but we need to supply a data type to make it applicable only to `string` type data. Available data types are `string`,`array`, `int`, `float`, and `double`.
+The `*` signifies a wildcard which makes it applicable to "any" field, but take note that the included rule is `trim::string`. The rule is divided into three parts - *function*, *parameters*, *data type* -, which is separated by colon ('`:`'); *parameters* are further divided by comma ('`,`'). By default, data type will be assumed as string. In our case, for the function `trim` we don't need any parameters but we need to supply a data type to make it applicable only to `string`-typed data. Available data types are `string`,`array`, `int`, `float`, and `double`.
 
 #### Inline Rules with Global Rules
 Sample:

@@ -4,7 +4,6 @@ namespace Tests;
 
 use Exylon\Fuse\Support\Arr;
 use Exylon\Fuse\Support\Attributes;
-use Illuminate\Support\Collection;
 
 class SupportHelperTest extends TestCase
 {
@@ -29,29 +28,32 @@ class SupportHelperTest extends TestCase
 
     public function testRandomHexString()
     {
-        $output = random_hex_string(16);
+        $output = str_random_hex(16);
         $this->assertEquals(16, strlen($output));
         $this->assertRegExp('/^[a-f0-9]{1,}$/is', $output);
     }
 
     public function testRandomIntString()
     {
-        $output = random_int_string(16);
+        $output = str_random_int(16);
         $this->assertEquals(16, strlen($output));
         $this->assertRegExp('/^[0-9]{1,}$/is', $output);
 
-        $output = random_int_string(16, 0, 'x');
+        $output = str_random_int(16, 0, 'x');
         $this->assertEquals(16, strlen($output));
         $this->assertRegExp('/^[x]*[0-9]{1,}$/is', $output);
     }
 
-    public function testSnakeCaseToTitle()
+    public function testProperCase()
     {
-        $output = snake_to_title_case('lorem_ipsum_dolor_sit_amet');
+        $output = proper_case('lorem_ipsum_dolor_sit_amet', '_');
         $this->assertEquals('Lorem Ipsum Dolor Sit Amet', $output);
 
-        $output = snake_to_title_case('lorem_ipsum_dolor_sit-amet');
-        $this->assertEquals('Lorem Ipsum Dolor Sit-amet', $output);
+        $output = proper_case('lorem_ipsum_dolor_sit-amet', '_');
+        $this->assertEquals('Lorem Ipsum Dolor Sit-Amet', $output);
+
+        $output = proper_case('lorem_ipsum_dolor_sit-amet', ['_','-']);
+        $this->assertEquals('Lorem Ipsum Dolor Sit Amet', $output);
     }
 
     public function testArrayDotReverse()
