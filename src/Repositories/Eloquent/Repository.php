@@ -330,6 +330,21 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     }
 
     /**
+     * Checks whether an entity exists from the repository
+     *
+     * @param array $where
+     *
+     * @return boolean
+     */
+    public function exists(array $where)
+    {
+        $this->applyWhereClauses($where);
+        $ret = $this->model->exists();
+        $this->reset();
+        return $ret;
+    }
+
+    /**
      * Load relations
      *
      * @param array|string $relations

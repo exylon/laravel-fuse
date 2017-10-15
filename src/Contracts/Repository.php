@@ -150,6 +150,15 @@ interface Repository
     public function findAllWhere(array $where, $columns = array('*'));
 
     /**
+     * Checks whether an entity exists from the repository
+     *
+     * @param array $where
+     *
+     * @return boolean
+     */
+    public function exists(array $where);
+
+    /**
      * Load relations
      *
      * @param array|string $relations

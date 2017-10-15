@@ -287,6 +287,33 @@ class EloquentRepositoryTest extends TestCase
         $this->assertEquals($original->getKey(), $results->first()->getKey());
     }
 
+    public function testExists()
+    {
+        $repo = new Repository(new User());
+
+        $repo->create([
+            'name' => 'John Carter'
+        ]);
+        $repo->create([
+            'name' => 'John Jackson'
+        ]);
+
+        $this->assertTrue($repo->exists([
+            'name' => 'John Carter'
+        ]));
+
+
+
+        $repo->deleteWhere([
+            'name' => 'John Jackson'
+        ]);
+
+        $this->assertFalse($repo->exists([
+            'name' => 'John Jackson'
+        ]));
+
+    }
+
     public function testTransformer()
     {
         $repo = new Repository(new User());
