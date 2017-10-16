@@ -28,9 +28,8 @@ class FuseServiceProvider extends ServiceProvider
 
     public function register()
     {
-
-        $this->registerFacades();
         $this->loadConfig();
+        $this->registerFacades();
     }
 
     /**
