@@ -15,13 +15,13 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
 {
 
     /**
-     * @var \Illuminate\Database\Eloquent\Model
+     * @var \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder
      */
-    protected $originalModel;
+    protected $original;
     /**
-     * @var \Illuminate\Database\Eloquent\Model
+     * @var \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder
      */
-    protected $model;
+    protected $query;
 
     /**
      * @var array
@@ -64,9 +64,15 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     protected $options = [];
 
 
-    public function __construct(Model $model, array $options = [])
+    /**
+     * Repository constructor.
+     *
+     * @param \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder $model
+     * @param array                                                                  $options
+     */
+    public function __construct($model, array $options = [])
     {
-        $this->originalModel = $model;
+        $this->original = $model;
         $this->reset();
         $this->setDefaultOptions($options);
     }
@@ -81,12 +87,12 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function all(array $columns = array('*'))
     {
-        if ($this->model instanceof Builder) {
-            $results = $this->model->get($columns)->map(function ($item) {
+        if ($this->query instanceof Builder) {
+            $results = $this->query->get($columns)->map(function ($item) {
                 return $this->transform($item);
             });
         } else {
-            $results = $this->model->all($columns)->map(function ($item) {
+            $results = $this->query->all($columns)->map(function ($item) {
                 return $this->transform($item);
             });
         }
@@ -126,7 +132,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
 
         $this->applyWhereClauses($where);
 
-        $paginator = $this->model->{$method}($limit, $columns, $pageName, $page);
+        $paginator = $this->query->{$method}($limit, $columns, $pageName, $page);
         $paginator
             ->getCollection()
             ->transform(function ($item) {
@@ -151,7 +157,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             \Validator::validate($attributes, $this->createRules);
         }
 
-        $model = $this->originalModel->newInstance();
+        $model = $this->original instanceof Builder ? $this->original->newModelInstance() : $this->original->newInstance();
         $model->forceFill($attributes);
         $model->save();
         $this->reset();
@@ -172,7 +178,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             \Validator::validate($attributes, $this->createRules);
         }
 
-        $model = $this->originalModel->newInstance();
+        $model = $this->original instanceof Builder ? $this->original->newModelInstance() : $this->original->newInstance();
         $model->forceFill($attributes);
         $this->reset();
 
@@ -304,7 +310,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     public function findWhere(array $where, $columns = array('*'))
     {
         $this->applyWhereClauses($where);
-        $model = $this->model->firstOrFail($columns);
+        $model = $this->query->firstOrFail($columns);
         $this->reset();
 
         return $this->transform($model);
@@ -322,7 +328,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     {
 
         $this->applyWhereClauses($where);
-        $results = $this->model->get($columns)->map(function ($item) {
+        $results = $this->query->get($columns)->map(function ($item) {
             return $this->transform($item);
         });
         $this->reset();
@@ -340,7 +346,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     public function exists(array $where)
     {
         $this->applyWhereClauses($where);
-        $ret = $this->model->exists();
+        $ret = $this->query->exists();
         $this->reset();
         return $ret;
     }
@@ -354,7 +360,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function with($relations)
     {
-        $this->model = $this->model->with($relations);
+        $this->query = $this->query->with($relations);
         return $this;
 
     }
@@ -459,7 +465,11 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
 
     protected function reset()
     {
-        $this->model = $this->originalModel->newInstance();
+        if ($this->original instanceof Builder) {
+            $this->query = $this->original->newQuery();
+        } else {
+            $this->query = $this->original->newInstance();
+        }
         $this->enableValidation = false;
         $this->options = [];
     }
@@ -508,13 +518,14 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
 
     protected function _findOrFail($model, bool $forceFresh = false)
     {
-        if ($model instanceof $this->originalModel) {
+        $originalModel = $this->original instanceof Builder ? $this->original->newModelInstance() : $this->original;
+        if ($model instanceof $originalModel) {
             return $forceFresh ? $model->fresh() : $model;
         }
         if ($model instanceof Entity) {
             $model = $model->getKey();
         }
-        return $this->model->findOrFail($model);
+        return $this->query->findOrFail($model);
     }
 
 
@@ -538,17 +549,17 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
                 }
                 $parameters[] = $options['parameters'];
 
-                $this->model = call_user_func_array([
-                    $this->model,
+                $this->query = call_user_func_array([
+                    $this->query,
                     ($orWhere ? 'orWhere' : 'where') . title_case($options['method'])
                 ], $parameters);
             } elseif (is_array($value)) {
-                $this->model = call_user_func_array([
-                    $this->model,
+                $this->query = call_user_func_array([
+                    $this->query,
                     ($orWhere ? 'orWhere' : 'where')
                 ], array_merge([$field], $value));
             } else {
-                $this->model = $this->model->where($field, $value);
+                $this->query = $this->query->where($field, $value);
             }
         }
 

@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Tests\Models\User;
 use Tests\TestCase;
@@ -45,6 +44,23 @@ class EloquentRepositoryTest extends TestCase
         $this->assertNotNull($results->first()->avatars);
     }
 
+
+    public function testAllUsingBuilder()
+    {
+        $repo = new Repository(User::active());
+
+        $results = $repo->all();
+        $this->assertInstanceOf(Collection::class, $results);
+        $this->assertInstanceOf(Entity::class, $results->first());
+        $this->assertEquals(2, $results->first()->getKey());
+
+        $results = $repo->with(['avatars'])->all();
+        $this->assertInstanceOf(Collection::class, $results);
+        $this->assertInstanceOf(Entity::class, $results->first());
+        $this->assertEquals(2, $results->first()->getKey());
+        $this->assertNotNull($results->first()->avatars);
+    }
+
     public function testCreate()
     {
         $repo = new Repository(new User());
@@ -56,6 +72,26 @@ class EloquentRepositoryTest extends TestCase
         $this->assertInstanceOf(Entity::class, $entity);
         $this->assertEquals('John Smith', $entity->name);
         $this->assertNotNull($entity->getKey());
+        $this->assertDatabaseHas('users', [
+            'name' => 'John Smith'
+        ]);
+
+    }
+
+    public function testCreateUsingBuilder()
+    {
+        $repo = new Repository(User::active());
+
+        $entity = $repo->create([
+            'name' => 'John Smith Jr.'
+        ]);
+
+        $this->assertInstanceOf(Entity::class, $entity);
+        $this->assertEquals('John Smith Jr.', $entity->name);
+        $this->assertNotNull($entity->getKey());
+        $this->assertDatabaseHas('users', [
+            'name' => 'John Smith Jr.',
+        ]);
 
     }
 
@@ -122,6 +158,20 @@ class EloquentRepositoryTest extends TestCase
 
     }
 
+    public function testUpdateWithBuilder()
+    {
+        $repo = new Repository(User::active());
+
+        $entity = $repo->update(2, [
+            'name' => 'Sarah Smith, PHD'
+        ]);
+
+        $this->assertInstanceOf(Entity::class, $entity);
+        $this->assertEquals('Sarah Smith, PHD', $entity->name);
+        $this->assertEquals(2, $entity->getKey());
+
+    }
+
 
     public function testUpdateWithValidation()
     {
@@ -158,6 +208,35 @@ class EloquentRepositoryTest extends TestCase
 
     }
 
+    public function testUpdateWhereWithBuilder()
+    {
+        $repo = new Repository(User::active());
+
+        $original = $repo->create([
+            'name'   => 'John Donner Jr.',
+            'status' => 'active'
+        ]);
+        $repo->create([
+            'name'   => 'John Donner Jr.',
+            'status' => 'unknown'
+        ]);
+
+        $entity = $repo->updateWhere([
+            'name' => 'John Donner Jr.'
+        ], [
+            'name' => 'Sarah Connor, PHD'
+        ]);
+
+        $this->assertInstanceOf(Entity::class, $entity);
+        $this->assertEquals('Sarah Connor, PHD', $entity->name);
+        $this->assertEquals($original->getKey(), $entity->getKey());
+        $this->assertDatabaseHas('users', [
+            'name'   => 'John Donner Jr.',
+            'status' => 'unknown'
+        ]);
+
+    }
+
 
     public function testDelete()
     {
@@ -169,7 +248,9 @@ class EloquentRepositoryTest extends TestCase
 
         $result = $repo->delete($original->getKey());
         $this->assertTrue($result);
-        $this->assertFalse(DB::table('users')->where('name', 'John Bravo')->exists());
+        $this->assertDatabaseMissing('users', [
+            'name' => 'John Bravo'
+        ]);
 
 
         $original = $repo->create([
@@ -178,8 +259,36 @@ class EloquentRepositoryTest extends TestCase
 
         $result = $repo->delete($original);
         $this->assertTrue($result);
-        $this->assertFalse(DB::table('users')->where('name', 'John Bravo')->exists());
+        $this->assertDatabaseMissing('users', [
+            'name' => 'John Bravo'
+        ]);
 
+    }
+
+    public function testDeleteWithBuilder()
+    {
+        $repo = new Repository(User::active());
+
+        $original = $repo->create([
+            'name'   => 'John Bravo Jr.',
+            'status' => 'active'
+        ]);
+
+        $repo->create([
+            'name'   => 'John Bravo Jr.',
+            'status' => 'unknown'
+        ]);
+
+        $result = $repo->delete($original->getKey());
+        $this->assertTrue($result);
+        $this->assertDatabaseMissing('users', [
+            'name'   => 'John Bravo Jr.',
+            'status' => 'active'
+        ]);
+        $this->assertDatabaseHas('users', [
+            'name'   => 'John Bravo Jr.',
+            'status' => 'unknown'
+        ]);
     }
 
 
@@ -196,7 +305,40 @@ class EloquentRepositoryTest extends TestCase
         ]);
 
         $this->assertTrue($result);
-        $this->assertFalse(DB::table('users')->where('name', 'John Norton')->exists());
+        $this->assertDatabaseMissing('users', [
+            'name' => 'John Norton'
+        ]);
+
+    }
+
+
+    public function testDeleteWhereWithBuilder()
+    {
+        $repo = new Repository(User::active());
+
+        $original = $repo->create([
+            'name'   => 'John Norton Jr.',
+            'status' => 'active'
+        ]);
+        $repo->create([
+            'name'   => 'John Norton Jr.',
+            'status' => 'unknown'
+        ]);
+
+
+        $result = $repo->deleteWhere([
+            'name' => 'John Norton Jr.'
+        ]);
+
+        $this->assertTrue($result);
+        $this->assertDatabaseMissing('users', [
+            'name'   => 'John Norton Jr.',
+            'status' => 'active'
+        ]);
+        $this->assertDatabaseHas('users', [
+            'name'   => 'John Norton Jr.',
+            'status' => 'unknown'
+        ]);
 
     }
 
@@ -219,11 +361,52 @@ class EloquentRepositoryTest extends TestCase
         $this->assertNotNull($entity->getKey());
     }
 
+    public function testFindWithBuilder()
+    {
+        $repo = new Repository(User::active());
+
+        $original = $repo->create([
+            'name'   => 'John Wiggs Jr.',
+            'status' => 'active'
+        ]);
+        $repo->create([
+            'name'   => 'John Wiggs Jr.',
+            'status' => 'unknown'
+        ]);
+
+        $entity = $repo->find($original->getKey());
+        $this->assertInstanceOf(Entity::class, $entity);
+        $this->assertEquals('John Wiggs Jr.', $entity->name);
+        $this->assertNotNull($entity->getKey());
+
+        $entity = $repo->find($original);
+        $this->assertInstanceOf(Entity::class, $entity);
+        $this->assertEquals('John Wiggs Jr.', $entity->name);
+        $this->assertNotNull($entity->getKey());
+    }
+
     public function testFailingFind()
     {
         $this->expectException(ModelNotFoundException::class);
         $repo = new Repository(new User());
         $repo->find(null);
+    }
+
+    public function testFailingFindWithBuilder()
+    {
+
+        $this->expectException(ModelNotFoundException::class);
+        $repo = new Repository(User::active());
+
+        $repo->create([
+            'name'   => 'John Cena Jr.',
+            'status' => 'active'
+        ]);
+        $original = $repo->create([
+            'name'   => 'John Cena Jr.',
+            'status' => 'unknown'
+        ]);
+        $entity = $repo->find($original);
     }
 
     public function testFindBy()
@@ -240,6 +423,25 @@ class EloquentRepositoryTest extends TestCase
         $this->assertNotNull($entity->getKey());
     }
 
+    public function testFindByWithBuilder()
+    {
+        $repo = new Repository(User::active());
+
+        $original = $repo->create([
+            'name'   => 'John Chrysler Jr.',
+            'status' => 'active'
+        ]);
+        $repo->create([
+            'name'   => 'John Chrysler Jr.',
+            'status' => 'unknown'
+        ]);
+
+        $entity = $repo->findBy('name', 'John Chrysler Jr.');
+        $this->assertInstanceOf(Entity::class, $entity);
+        $this->assertEquals('John Chrysler Jr.', $entity->name);
+        $this->assertEquals($original->getKey(), $entity->getKey());
+    }
+
     public function testFindAllBy()
     {
         $repo = new Repository(new User());
@@ -253,6 +455,27 @@ class EloquentRepositoryTest extends TestCase
         $this->assertInstanceOf(Collection::class, $results);
         $this->assertInstanceOf(Entity::class, $results->first());
         $this->assertEquals($original->getKey(), $results->first()->getKey());
+    }
+
+    public function testFindAllByWithBuilder()
+    {
+        $repo = new Repository(User::active());
+
+        $original = $repo->create([
+            'name'   => 'John Andersen',
+            'status' => 'active'
+        ]);
+        $repo->create([
+            'name'   => 'John Andersen',
+            'status' => 'unknown'
+        ]);
+
+
+        $results = $repo->findAllBy('name', 'John Andersen');
+        $this->assertInstanceOf(Collection::class, $results);
+        $this->assertInstanceOf(Entity::class, $results->first());
+        $this->assertEquals($original->getKey(), $results->first()->getKey());
+        $this->assertCount(1, $results);
     }
 
     public function testFindWhere()
@@ -271,6 +494,28 @@ class EloquentRepositoryTest extends TestCase
         $this->assertNotNull($entity->getKey());
     }
 
+    public function testFindWhereWithBuilder()
+    {
+        $repo = new Repository(User::active());
+
+        $original = $repo->create([
+            'name'   => 'John Nye Jr.',
+            'status' => 'active'
+        ]);
+
+        $repo->create([
+            'name'   => 'John Nye Jr.',
+            'status' => 'unknown'
+        ]);
+
+        $entity = $repo->findWhere([
+            'name' => 'John Nye Jr.'
+        ]);
+        $this->assertInstanceOf(Entity::class, $entity);
+        $this->assertEquals('John Nye Jr.', $entity->name);
+        $this->assertEquals($original->getKey(), $entity->getKey());
+    }
+
     public function testFindAllWhere()
     {
         $repo = new Repository(new User());
@@ -281,6 +526,27 @@ class EloquentRepositoryTest extends TestCase
 
         $results = $repo->findAllWhere([
             'name' => 'John Hensley'
+        ]);
+        $this->assertInstanceOf(Collection::class, $results);
+        $this->assertInstanceOf(Entity::class, $results->first());
+        $this->assertEquals($original->getKey(), $results->first()->getKey());
+    }
+
+    public function testFindAllWhereWithBuilder()
+    {
+        $repo = new Repository(User::active());
+
+        $original = $repo->create([
+            'name'   => 'John Hensley Jr.',
+            'status' => 'active'
+        ]);
+        $repo->create([
+            'name'   => 'John Hensley Jr.',
+            'status' => 'unknown'
+        ]);
+
+        $results = $repo->findAllWhere([
+            'name' => 'John Hensley Jr.'
         ]);
         $this->assertInstanceOf(Collection::class, $results);
         $this->assertInstanceOf(Entity::class, $results->first());
@@ -301,7 +567,6 @@ class EloquentRepositoryTest extends TestCase
         $this->assertTrue($repo->exists([
             'name' => 'John Carter'
         ]));
-
 
 
         $repo->deleteWhere([

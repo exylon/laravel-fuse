@@ -12,6 +12,7 @@ class CreateSamplesTable extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->increments('id');
             $table->string('name');
+            $table->string('status')->nullable();
             $table->timestamps();
         });
 
@@ -47,6 +48,13 @@ class CreateSamplesTable extends Migration
         \Illuminate\Support\Facades\DB::table('users')
             ->insert([
                 'name' => 'John Doe'
+            ]);
+
+
+        \Illuminate\Support\Facades\DB::table('users')
+            ->insert([
+                'name'   => 'John Bolder',
+                'status' => 'active'
             ]);
 
         \Illuminate\Support\Facades\DB::table('user_avatars')
