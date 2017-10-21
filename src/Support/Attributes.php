@@ -61,6 +61,9 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
      */
     public function offsetExists($key)
     {
+        if (array_key_exists($key, $this->aliases)) {
+            $key = $this->aliases[$key];
+        }
         return array_key_exists($key, $this->attributes);
     }
 
