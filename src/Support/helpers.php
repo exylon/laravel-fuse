@@ -9,7 +9,7 @@ if (!function_exists('str_replace_assoc')) {
      */
     function str_replace_assoc(array $pairs, $subject): string
     {
-        return str_replace(array_keys($pairs), array_values($pairs), $subject);
+        return \Exylon\Fuse\Support\Str::replaceAssoc($pairs, $subject);
     }
 }
 
@@ -46,10 +46,7 @@ if (!function_exists('str_random_hex')) {
      */
     function str_random_hex(int $length): string
     {
-        $bytes = random_bytes(($length / 2) + 1);
-        $out = bin2hex($bytes);
-
-        return substr($out, 0, $length);
+        return \Exylon\Fuse\Support\Str::randomHex($length);
     }
 }
 
@@ -65,20 +62,12 @@ if (!function_exists('str_random_int')) {
      */
     function str_random_int(int $length, int $min = 0, string $pad = '0'): string
     {
-        $pad = $pad ?: '0';
-        $max = pow(10, $length) - 1;
-        if ($max > PHP_INT_MAX) {
-            $max = PHP_INT_MAX;
-        }
-        $out = random_int($min, $max);
-
-
-        return str_pad($out, $length, $pad, STR_PAD_LEFT);
+        return \Exylon\Fuse\Support\Str::randomInt($length, $min, $pad);
     }
 }
 
 
-if (!function_exists('snake_to_title_case')) {
+if (!function_exists('proper_case')) {
     /**
      * Converts a string to proper cased string
      *
@@ -89,7 +78,7 @@ if (!function_exists('snake_to_title_case')) {
      */
     function proper_case(string $str, $delimiters = '_'): string
     {
-        return ucwords(str_replace($delimiters, ' ', $str), " \t\r\n\f\v-");
+        return \Exylon\Fuse\Support\Str::properCase($str, $delimiters);
     }
 }
 

@@ -42,7 +42,7 @@ class ServiceMakeCommand extends GeneratorCommand
      */
     protected function replace(&$stub)
     {
-        return str_replace_assoc([
+        return \Exylon\Fuse\Support\Str::replaceAssoc([
             'DummyRepository'     => $this->qualifyRepository(),
             'dummyRepositoryName' => strtolower(str_plural($this->getBaseNameInput()))
         ], $stub);

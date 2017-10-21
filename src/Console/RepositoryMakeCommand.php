@@ -101,7 +101,7 @@ class RepositoryMakeCommand extends GeneratorCommand
      */
     protected function replace(&$stub)
     {
-        return str_replace_assoc([
+        return \Exylon\Fuse\Support\Str::replaceAssoc([
             'DummyModelClass' => $this->getModelClass(),
             'DummyModel'      => $this->getModelName(),
         ], $stub);

@@ -57,7 +57,7 @@ class SubscriberMakeCommand extends GeneratorCommand
             $event = $this->resolveEvent($event);
 
 
-            $stub = str_replace_assoc([
+            $stub = \Exylon\Fuse\Support\Str::replaceAssoc([
                 '//METHOD_BLOCK' => $this->methodSnippet,
                 '//LISTEN_BLOCK' => $this->listenSnippet,
                 '//USE_BLOCK'    => $this->fullEventSnippet,
@@ -70,7 +70,7 @@ class SubscriberMakeCommand extends GeneratorCommand
             );
         }
 
-        $stub = str_replace_assoc([
+        $stub = \Exylon\Fuse\Support\Str::replaceAssoc([
             '//METHOD_BLOCK' => '',
             '//LISTEN_BLOCK' => '',
             '//USE_BLOCK'    => ''
