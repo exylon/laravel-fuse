@@ -199,7 +199,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         if ($this->enableValidation && !empty($this->updateRules)) {
             \Validator::validate($data, $this->updateRules);
         }
-        $model = $this->_findOrFail($id);
+        $model = $this->findRawModel($id);
         $model->forceFill($data);
         $model->save();
         $this->reset();
@@ -231,7 +231,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function delete($id)
     {
-        $model = $this->_findOrFail($id);
+        $model = $this->findRawModel($id);
         $deleted = $model->delete();
         $this->reset();
 
@@ -262,7 +262,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function find($id, array $columns = array('*'))
     {
-        $model = $this->_findOrFail($id, true);
+        $model = $this->findRawModel($id, true);
         $this->reset();
 
         return $this->transform($model);
@@ -531,8 +531,15 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         throw new InvalidArgumentException('Invalid transformer callback');
     }
 
-
-    protected function _findOrFail($model, bool $forceFresh = false)
+    /**
+     * Find raw model object from the repository
+     *
+     * @param      $model
+     * @param bool $forceFresh
+     *
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|null|static
+     */
+    protected function findRawModel($model, bool $forceFresh = false)
     {
         $originalModel = $this->original instanceof Builder ? $this->original->newModelInstance() : $this->original;
         if ($model instanceof $originalModel) {
@@ -542,6 +549,19 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             $model = $model->getKey();
         }
         return $this->query->findOrFail($model);
+    }
+
+    /**
+     * @deprecated Use `findRawModel` instead
+     *
+     * @param      $model
+     * @param bool $forceFresh
+     *
+     * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|null|static
+     */
+    protected function _findOrFail($model, bool $forceFresh = false)
+    {
+        return $this->findRawModel($model, $forceFresh);
     }
 
 
