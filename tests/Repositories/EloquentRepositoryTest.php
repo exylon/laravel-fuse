@@ -595,6 +595,7 @@ class EloquentRepositoryTest extends TestCase
 
         $classCallback = \Mockery::mock()
             ->shouldReceive('transform')
+            ->with(\Mockery::type(User::class), \Mockery::type('array'))
             ->andReturn('class_callback')
             ->getMock();
         $result = $repo->withTransformer($classCallback)->find($original);
@@ -603,10 +604,14 @@ class EloquentRepositoryTest extends TestCase
 
         $classCallback = \Mockery::mock()
             ->shouldReceive('doTransform')
+            ->with(\Mockery::type(User::class), \Mockery::type('array'))
             ->andReturn('class_callback')
             ->getMock();
         $result = $repo->withTransformer([$classCallback, 'doTransform'])->find($original);
         $this->assertEquals('class_callback', $result);
+
+        $result = $repo->withTransformer('Tests\Repositories\SimpleTransformer@transform')->find($original);
+        $this->assertEquals('John Haywood', $result);
     }
 
     public function testPaginate()

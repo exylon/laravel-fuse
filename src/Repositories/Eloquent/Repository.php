@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
+use InvalidArgumentException;
 
 class Repository implements \Exylon\Fuse\Contracts\Repository
 {
@@ -480,16 +481,20 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         $this->enableTransformer = true;
     }
 
-    protected function transform(Model $model)
+    protected function transform(Model $model, array $metadata = [])
     {
         if ($this->enableTransformer) {
             if (($callback = $this->getTransformerCallback($this->transformer, $this->defaultTransformer)) !== null) {
-                $result = $this->executeTransformer($callback, $model);
+                $result = $this->executeTransformer($callback, $model, $metadata);
             } else {
-                $result = new Entity($model->getKey(), $model->toArray());
+                $result = new Entity($model->getKey(), array_merge($model->toArray(), [
+                    'meta' => $metadata
+                ]));
             }
         } else {
-            $result = new Entity($model->getKey(), $model->toArray());
+            $result = new Entity($model->getKey(), array_merge($model->toArray(), [
+                'meta' => $metadata
+            ]));
         }
 
         $this->resetTransformer();
@@ -507,12 +512,23 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         return $defaultTransformer === null ? null : $this->getTransformerCallback($defaultTransformer);
     }
 
-    private function executeTransformer($callback, $model)
+    private function executeTransformer($callback, $model, array $metadata = [])
     {
         if (is_callable($callback)) {
-            return call_user_func($callback, $model);
+            return call_user_func($callback, $model, $metadata);
         }
-        return Container::getInstance()->call($callback);
+
+        if (is_string($callback) && strpos($callback, '@') !== false) {
+            $segments = explode('@', $callback);
+            $method = count($segments) == 2
+                ? $segments[1] : 'transform';
+            return $this->executeTransformer(
+                [Container::getInstance()->make($segments[0]), $method],
+                $model,
+                $metadata);
+        }
+
+        throw new InvalidArgumentException('Invalid transformer callback');
     }
 
 
