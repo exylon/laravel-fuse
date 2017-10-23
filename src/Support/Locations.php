@@ -267,4 +267,14 @@ class Locations
     {
         return static::$countries;
     }
+
+    public static function countryNames()
+    {
+        return array_values(static::$countries);
+    }
+
+    public static function countryIsoCodes()
+    {
+        return array_keys(static::$countries);
+    }
 }
