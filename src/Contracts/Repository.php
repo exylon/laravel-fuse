@@ -168,6 +168,15 @@ interface Repository
     public function with($relations);
 
     /**
+     * Append attributes
+     *
+     * @param array|string $attributes
+     *
+     * @return $this
+     */
+    public function append($attributes);
+
+    /**
      * Enables validation for create, make and update methods
      *
      * @return $this

@@ -64,6 +64,11 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     protected $options = [];
 
+    /**
+     * @var array
+     */
+    protected $appends = [];
+
 
     /**
      * Repository constructor.
@@ -361,9 +366,24 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function with($relations)
     {
-        $this->query = $this->query->with($relations);
+        $this->query = $this->query->with(is_string($relations) ? func_get_args() : $relations);
         return $this;
 
+    }
+
+    /**
+     * Append attributes
+     *
+     * @param array|string $attributes
+     *
+     * @return $this
+     */
+    public function append($attributes)
+    {
+        $this->appends = array_unique(
+            array_merge($this->appends, is_string($attributes) ? func_get_args() : $attributes)
+        );
+        return $this;
     }
 
     /**
@@ -483,6 +503,10 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
 
     protected function transform(Model $model, array $metadata = [])
     {
+        if (!empty($this->appends)) {
+            $model = $model->append($this->appends);
+        }
+
         if ($this->enableTransformer) {
             if (($callback = $this->getTransformerCallback($this->transformer, $this->defaultTransformer)) !== null) {
                 $result = $this->executeTransformer($callback, $model, $metadata);

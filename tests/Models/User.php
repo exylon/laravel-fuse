@@ -18,4 +18,14 @@ class User extends Model
     {
         return $q->where('status', 'active');
     }
+
+    public function getAgeAttribute()
+    {
+        return 18;
+    }
+
+    public function getGenderAttribute()
+    {
+        return 'male';
+    }
 }

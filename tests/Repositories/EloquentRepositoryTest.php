@@ -735,4 +735,21 @@ class EloquentRepositoryTest extends TestCase
         $this->assertCount(3, $results);
     }
 
+    public function testAppend()
+    {
+
+        $repo = new Repository(new User());
+
+        $repo->create([
+            'name' => 'Mike Dosner'
+        ]);
+
+        $user = $repo->append('age', 'gender')->findWhere([
+            'name' => 'Mike Dosner'
+        ]);
+
+        $this->assertEquals(18, $user->age);
+        $this->assertEquals('male', $user->gender);
+    }
+
 }
