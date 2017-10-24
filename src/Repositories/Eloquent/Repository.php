@@ -9,6 +9,7 @@ use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 
@@ -511,19 +512,36 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             if (($callback = $this->getTransformerCallback($this->transformer, $this->defaultTransformer)) !== null) {
                 $result = $this->executeTransformer($callback, $model, $metadata);
             } else {
-                $result = new Entity($model->getKey(), array_merge($model->toArray(), [
-                    'meta' => $metadata
-                ]));
+                $result = $this->prepareEntity($model, $metadata);
             }
         } else {
-            $result = new Entity($model->getKey(), array_merge($model->toArray(), [
-                'meta' => $metadata
-            ]));
+            $result = $this->prepareEntity($model, $metadata);
         }
 
         $this->resetTransformer();
 
         return $result;
+    }
+
+    private function prepareEntity(Model $model, array $metadata = [])
+    {
+        $attributes = $model->attributesToArray();
+        if (!empty($metadata)) {
+            $attributes = array_merge($attributes, [
+                'meta' => $metadata
+            ]);
+        }
+        $root = new Entity($model->getKey(), $attributes);
+        foreach ($model->getRelations() as $name=>$relation) {
+            if ($relation instanceof Collection) {
+                $root[$name] = $relation->map(function ($item) {
+                    return $this->prepareEntity($item);
+                });
+            } elseif ($relation instanceof Model) {
+                $root[$name] = $this->prepareEntity($relation);
+            }
+        }
+        return $root;
     }
 
     private function getTransformerCallback($transformer, $defaultTransformer = null)
