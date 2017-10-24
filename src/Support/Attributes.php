@@ -176,7 +176,13 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
         $value = $this->offsetGet($key);
         if (is_array($value)) {
             if (!array_key_exists($key, $cachedValues)) {
-                $cachedValues[$key] = new Attributes($value);
+                if (\Illuminate\Support\Arr::isAssoc($value)) {
+                    $cachedValues[$key] = $this->newInstance($value);
+                } else {
+                    $cachedValues[$key] = collect($value)->map(function ($item) {
+                        return $this->newInstance($item);
+                    });
+                }
             }
             $value = $cachedValues[$key];
         }
@@ -186,5 +192,10 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
     public function __set($key, $value)
     {
         $this->offsetSet($key, $value);
+    }
+
+    protected function newInstance($item)
+    {
+        return new Attributes($item);
     }
 }
