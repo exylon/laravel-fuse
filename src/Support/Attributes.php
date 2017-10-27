@@ -24,6 +24,12 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
      */
     protected $aliases;
 
+
+    /**
+     * @var array
+     */
+    protected $cachedValues = [];
+
     public function __construct(array $attributes, array $aliases = [])
     {
         $this->attributes = $attributes;
@@ -111,7 +117,13 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
      */
     public function offsetUnset($key)
     {
+        if (array_key_exists($key, $this->aliases)) {
+            $key = $this->aliases[$key];
+        }
         unset($this->attributes[$key]);
+        if (array_key_exists($key, $this->cachedValues)) {
+            unset($this->cachedValues[$key]);
+        }
     }
 
     /**
@@ -168,23 +180,22 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
 
     public function __get($key)
     {
-        static $cachedValues = [];
 
         if (!$this->offsetExists($key)) {
             throw new Exception("Property [{$key}] does not exist on this attributes instance.");
         }
         $value = $this->offsetGet($key);
         if (is_array($value)) {
-            if (!array_key_exists($key, $cachedValues)) {
+            if (!array_key_exists($key, $this->cachedValues)) {
                 if (\Illuminate\Support\Arr::isAssoc($value)) {
-                    $cachedValues[$key] = $this->newInstance($value);
+                    $this->cachedValues[$key] = $this->newInstance($value);
                 } else {
-                    $cachedValues[$key] = collect($value)->map(function ($item) {
+                    $this->cachedValues[$key] = collect($value)->map(function ($item) {
                         return $this->newInstance($item);
                     });
                 }
             }
-            $value = $cachedValues[$key];
+            $value = $this->cachedValues[$key];
         }
         return $value;
     }

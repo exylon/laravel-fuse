@@ -160,6 +160,26 @@ class SupportHelperTest extends TestCase
         $this->assertEquals('foo', $arr['yellow']['mangoes']);
     }
 
+    public function testAttributeDelete()
+    {
+        $items = [
+            'red'    => 'apple',
+            'orange' => 'orange',
+            'yellow' => [
+                'mangoes' => 'foo',
+                'pear'    => 'bar'
+            ]
+        ];
+
+        $arr = new Attributes($items, [
+            'pula' => 'red'
+        ]);
+        unset($arr['pula']);
+        unset($arr['yellow']);
+        $this->assertArrayNotHasKey('red', $arr);
+        $this->assertArrayNotHasKey('yellow', $arr);
+    }
+
     public function testHasTrait()
     {
         $customer = new Customer();
