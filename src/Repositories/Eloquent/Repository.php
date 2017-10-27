@@ -532,7 +532,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             ]);
         }
         $root = new Entity($model->getKey(), $attributes);
-        foreach ($model->getRelations() as $name=>$relation) {
+        foreach ($model->getRelations() as $name => $relation) {
             if ($relation instanceof Collection) {
                 $root[$name] = $relation->map(function ($item) {
                     return $this->prepareEntity($item);
@@ -576,22 +576,38 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     /**
      * Find raw model object from the repository
      *
-     * @param      $model
+     * @param      $entity
      * @param bool $forceFresh
+     * @param null $query
      *
      * @return \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|null|static
      */
-    protected function findRawModel($model, bool $forceFresh = false)
+    protected function findRawModel($entity, bool $forceFresh = false, $query = null)
     {
-        $originalModel = $this->original instanceof Builder ? $this->original->newModelInstance() : $this->original;
-        if ($model instanceof $originalModel) {
-            return $forceFresh ? $model->fresh() : $model;
+        if ($query === null) {
+            return $this->findRawModel($entity, $forceFresh, $this->query);
         }
-        if ($model instanceof Entity) {
-            $model = $model->getKey();
+
+        $class = $query instanceof Builder ? $query->newModelInstance() : $query;
+        if ($entity instanceof $class) {
+            return $forceFresh ? $entity->refresh() : $entity;
         }
-        return $this->query->findOrFail($model);
+
+        if ($entity instanceof Entity) {
+            $entity = $entity->getKey();
+        }
+
+        if (is_string($query)) {
+            $query = app($query);
+            if (!$query instanceof Model) {
+                throw new InvalidArgumentException("Query must be an instance of Model");
+            }
+            $query = $query->newInstance();
+        }
+
+        return $query->findOrFail($entity);
     }
+
 
     /**
      * @deprecated Use `findRawModel` instead
