@@ -80,7 +80,7 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
      *
      * @return mixed
      */
-    public function offsetGet($key)
+    public function &offsetGet($key)
     {
         if (array_key_exists($key, $this->aliases)) {
             $key = $this->aliases[$key];
@@ -178,7 +178,7 @@ class Attributes implements ArrayAccess, Arrayable, Countable, \IteratorAggregat
         }, $this->attributes);
     }
 
-    public function __get($key)
+    public function &__get($key)
     {
 
         if (!$this->offsetExists($key)) {
