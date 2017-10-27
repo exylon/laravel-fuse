@@ -37,7 +37,7 @@ class EloquentRepositoryTest extends TestCase
         $this->assertInstanceOf(Entity::class, $results->first());
         $this->assertEquals(1, $results->first()->getKey());
 
-        $results = $repo->with(['avatars'])->all();
+        $results = $repo->with('avatars')->all();
         $this->assertInstanceOf(Collection::class, $results);
         $this->assertInstanceOf(Entity::class, $results->first());
         $this->assertEquals(1, $results->first()->getKey());
@@ -148,13 +148,14 @@ class EloquentRepositoryTest extends TestCase
     {
         $repo = new Repository(new User());
 
-        $entity = $repo->update(1, [
+        $entity = $repo->append('gender')->update(1, [
             'name' => 'Sarah Smith'
         ]);
 
         $this->assertInstanceOf(Entity::class, $entity);
         $this->assertEquals('Sarah Smith', $entity->name);
         $this->assertEquals(1, $entity->getKey());
+        $this->assertEquals('male', $entity->gender);
 
     }
 
@@ -162,13 +163,13 @@ class EloquentRepositoryTest extends TestCase
     {
         $repo = new Repository(User::active());
 
-        $entity = $repo->update(2, [
+        $entity = $repo->update(1, [
             'name' => 'Sarah Smith, PHD'
         ]);
 
         $this->assertInstanceOf(Entity::class, $entity);
         $this->assertEquals('Sarah Smith, PHD', $entity->name);
-        $this->assertEquals(2, $entity->getKey());
+        $this->assertEquals(1, $entity->getKey());
 
     }
 
@@ -196,7 +197,7 @@ class EloquentRepositoryTest extends TestCase
             'name' => 'John Donner'
         ]);
 
-        $entity = $repo->updateWhere([
+        $entity = $repo->append('gender')->updateWhere([
             'name' => 'John Donner'
         ], [
             'name' => 'Sarah Connor'
@@ -205,6 +206,7 @@ class EloquentRepositoryTest extends TestCase
         $this->assertInstanceOf(Entity::class, $entity);
         $this->assertEquals('Sarah Connor', $entity->name);
         $this->assertEquals($original->getKey(), $entity->getKey());
+        $this->assertEquals('male', $entity->gender);
 
     }
 
@@ -355,10 +357,11 @@ class EloquentRepositoryTest extends TestCase
         $this->assertEquals('John Wiggs', $entity->name);
         $this->assertNotNull($entity->getKey());
 
-        $entity = $repo->find($original);
+        $entity = $repo->append('gender')->find($original);
         $this->assertInstanceOf(Entity::class, $entity);
         $this->assertEquals('John Wiggs', $entity->name);
         $this->assertNotNull($entity->getKey());
+        $this->assertEquals('male', $entity->gender);
     }
 
     public function testFindWithBuilder()
@@ -417,10 +420,11 @@ class EloquentRepositoryTest extends TestCase
             'name' => 'John Chrysler'
         ]);
 
-        $entity = $repo->findBy('name', 'John Chrysler');
+        $entity = $repo->append('gender')->findBy('name', 'John Chrysler');
         $this->assertInstanceOf(Entity::class, $entity);
         $this->assertEquals('John Chrysler', $entity->name);
         $this->assertNotNull($entity->getKey());
+        $this->assertEquals('male', $entity->gender);
     }
 
     public function testFindByWithBuilder()
@@ -451,10 +455,11 @@ class EloquentRepositoryTest extends TestCase
         ]);
 
 
-        $results = $repo->findAllBy('name', 'John Andersen');
+        $results = $repo->append('gender')->findAllBy('name', 'John Andersen');
         $this->assertInstanceOf(Collection::class, $results);
         $this->assertInstanceOf(Entity::class, $results->first());
         $this->assertEquals($original->getKey(), $results->first()->getKey());
+        $this->assertEquals('male', $results->first()->gender);
     }
 
     public function testFindAllByWithBuilder()
@@ -486,12 +491,13 @@ class EloquentRepositoryTest extends TestCase
             'name' => 'John Nye'
         ]);
 
-        $entity = $repo->findWhere([
+        $entity = $repo->append('gender')->findWhere([
             'name' => 'John Nye'
         ]);
         $this->assertInstanceOf(Entity::class, $entity);
         $this->assertEquals('John Nye', $entity->name);
         $this->assertNotNull($entity->getKey());
+        $this->assertEquals('male', $entity->gender);
     }
 
     public function testFindWhereWithBuilder()
@@ -524,12 +530,13 @@ class EloquentRepositoryTest extends TestCase
             'name' => 'John Hensley'
         ]);
 
-        $results = $repo->findAllWhere([
+        $results = $repo->append('gender')->findAllWhere([
             'name' => 'John Hensley'
         ]);
         $this->assertInstanceOf(Collection::class, $results);
         $this->assertInstanceOf(Entity::class, $results->first());
         $this->assertEquals($original->getKey(), $results->first()->getKey());
+        $this->assertEquals('male', $results->first()->gender);
     }
 
     public function testFindAllWhereWithBuilder()

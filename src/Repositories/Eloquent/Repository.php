@@ -70,6 +70,11 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     protected $appends = [];
 
+    /**
+     * @var array
+     */
+    protected $relations = [];
+
 
     /**
      * Repository constructor.
@@ -94,12 +99,15 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function all(array $columns = array('*'))
     {
+        $this->applyRelations();
         if ($this->query instanceof Builder) {
             $results = $this->query->get($columns)->map(function ($item) {
+                $item = $this->applyAppends($item);
                 return $this->transform($item);
             });
         } else {
             $results = $this->query->all($columns)->map(function ($item) {
+                $item = $this->applyAppends($item);
                 return $this->transform($item);
             });
         }
@@ -137,12 +145,14 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         $pageName = $options['page_name'];
         $method = $this->resolvePaginationMethod($options['pagination_method']);
 
+        $this->applyRelations();
         $this->applyWhereClauses($where);
 
         $paginator = $this->query->{$method}($limit, $columns, $pageName, $page);
         $paginator
             ->getCollection()
             ->transform(function ($item) {
+                $item = $this->applyAppends($item);
                 return $this->transform($item);
             });
 
@@ -205,10 +215,15 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         if ($this->enableValidation && !empty($this->updateRules)) {
             \Validator::validate($data, $this->updateRules);
         }
+        $this->query = $this->query instanceof Builder ? $this->query->newModelInstance() : $this->query;
+        $this->applyRelations();
+
         $model = $this->findRawModel($id);
         $model->forceFill($data);
         $model->save();
         $this->reset();
+
+        $model = $this->applyAppends($model);
 
         return $this->transform($model);
     }
@@ -224,6 +239,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function updateWhere(array $where, array $data)
     {
+        $this->query = $this->query instanceof Builder ? $this->query->newModelInstance() : $this->query;
         $entity = $this->findWhere($where);
         return $this->update($entity, $data);
     }
@@ -268,9 +284,11 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function find($id, array $columns = array('*'))
     {
+        $this->applyRelations();
         $model = $this->findRawModel($id, true);
         $this->reset();
 
+        $model = $this->applyAppends($model);
         return $this->transform($model);
     }
 
@@ -316,10 +334,12 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function findWhere(array $where, $columns = array('*'))
     {
+        $this->applyRelations();
         $this->applyWhereClauses($where);
         $model = $this->query->firstOrFail($columns);
         $this->reset();
 
+        $model = $this->applyAppends($model);
         return $this->transform($model);
     }
 
@@ -334,8 +354,10 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     public function findAllWhere(array $where, $columns = array('*'))
     {
 
+        $this->applyRelations();
         $this->applyWhereClauses($where);
         $results = $this->query->get($columns)->map(function ($item) {
+            $item = $this->applyAppends($item);
             return $this->transform($item);
         });
         $this->reset();
@@ -367,7 +389,8 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function with($relations)
     {
-        $this->query = $this->query->with(is_string($relations) ? func_get_args() : $relations);
+        $this->relations = array_unique(array_merge($this->relations,
+            is_string($relations) ? func_get_args() : $relations));
         return $this;
 
     }
@@ -620,6 +643,20 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     protected function _findOrFail($model, bool $forceFresh = false)
     {
         return $this->findRawModel($model, $forceFresh);
+    }
+
+    protected function applyRelations()
+    {
+        $this->query = $this->query->with($this->relations);
+    }
+
+
+    protected function applyAppends(Model &$model)
+    {
+        if (!empty($this->appends)) {
+            return $model->append($this->appends);
+        }
+        return $model;
     }
 
 
