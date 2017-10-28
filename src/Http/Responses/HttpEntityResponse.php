@@ -1,6 +1,6 @@
 <?php
 
-namespace Aurora\Http\Responses;
+namespace Exylon\Fuse\Http\Responses;
 
 use Illuminate\Container\Container;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -11,7 +11,6 @@ use JsonSerializable;
 
 abstract class HttpEntityResponse implements Responsable
 {
-
     /**
      * @var
      */

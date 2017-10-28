@@ -2,7 +2,7 @@
 
 namespace DummyNamespace;
 
-use Aurora\Http\Responses\HttpEntityResponse;
+use Exylon\Fuse\Http\Responses\HttpEntityResponse;
 
 class DummyClass extends HttpEntityResponse
 {
