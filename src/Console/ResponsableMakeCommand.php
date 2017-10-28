@@ -68,10 +68,12 @@ class ResponsableMakeCommand extends GeneratorCommand
     protected function getOptions()
     {
         return array_merge(parent::getOptions(), [
-            'entity',
-            null,
-            InputOption::VALUE_NONE,
-            'Sets the response class as entity response'
+            [
+                'entity',
+                null,
+                InputOption::VALUE_NONE,
+                'Sets the response class as entity response'
+            ]
         ]);
     }
 }
