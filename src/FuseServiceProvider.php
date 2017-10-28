@@ -43,6 +43,7 @@ class FuseServiceProvider extends ServiceProvider
             Console\SubscriberMakeCommand::class,
             Console\ServiceMakeCommand::class,
             Console\RepositoryMakeCommand::class,
+            Console\ResponsableMakeCommand::class
         ]);
     }
 
