@@ -1,0 +1,19 @@
+<?php
+
+namespace DummyNamespace;
+
+use Aurora\Http\Responses\HttpEntityResponse;
+
+class DummyClass extends HttpEntityResponse
+{
+
+    /**
+     * Default response when not expecting a JSON response
+     *
+     * @return mixed
+     */
+    protected function response()
+    {
+        // TODO: Implement response() method.
+    }
+}
