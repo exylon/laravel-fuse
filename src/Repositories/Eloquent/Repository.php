@@ -239,8 +239,6 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         if ($this->enableValidation && !empty($this->updateRules) && $this->validator !== null) {
             $this->validator->validate($data, $this->updateRules);
         }
-
-        $this->query = $this->query instanceof Builder ? $this->query->newModelInstance() : $this->query;
         $this->applyRelations();
         $this->applyWhereClauses($where);
         $model = $this->query->firstOrFail();
@@ -267,7 +265,6 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             $this->validator->validate($data, $this->updateRules);
         }
 
-        $this->query = $this->query instanceof Builder ? $this->query->newModelInstance() : $this->query;
         $this->applyWhereClauses($where);
         $updated = $this->query->update($data);
         $this->reset();

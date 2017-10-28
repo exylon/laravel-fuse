@@ -163,14 +163,24 @@ class EloquentRepositoryTest extends TestCase
     {
         $repo = new Repository(User::active());
 
-        $entity = $repo->update(1, [
+        $entity = $repo->update(2, [
             'name' => 'Sarah Smith, PHD'
         ]);
 
         $this->assertInstanceOf(Entity::class, $entity);
         $this->assertEquals('Sarah Smith, PHD', $entity->name);
-        $this->assertEquals(1, $entity->getKey());
+        $this->assertEquals(2, $entity->getKey());
+    }
 
+    public function testUpdateWithBuilderWithUnmatchedScope()
+    {
+        $this->expectException(ModelNotFoundException::class);
+
+        $repo = new Repository(User::active());
+
+        $entity = $repo->update(1, [
+            'name' => 'Sarah Smith, PHD'
+        ]);
     }
 
 
