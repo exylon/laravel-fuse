@@ -78,6 +78,16 @@ interface Repository
     public function updateWhere(array $where, array $data);
 
     /**
+     * Find and update all matching entities. Returns the number of affected rows
+     *
+     * @param array $where
+     * @param array $data
+     *
+     * @return int
+     */
+    public function updateAllWhere(array $where, array $data);
+
+    /**
      * Deletes an entity from the repository
      *
      * @param mixed $id
@@ -203,8 +213,6 @@ interface Repository
      * Sets the default transformer
      *
      * @param \Exylon\Fuse\Contracts\Transformer|\Closure|mixed|null $transformer
-     *
-     * @return mixed
      */
     public function setDefaultTransformer($transformer);
 
@@ -215,8 +223,6 @@ interface Repository
      *
      * @param array      $create
      * @param array|null $update
-     *
-     * @return mixed
      */
     public function setValidationRules(array $create, array $update = null);
 
@@ -225,8 +231,6 @@ interface Repository
      * Overrides the default options for this repository
      *
      * @param array $options
-     *
-     * @return mixed
      */
     public function setDefaultOptions(array $options);
 

@@ -99,7 +99,7 @@ class EloquentRepositoryTest extends TestCase
     {
         $this->expectException(ValidationException::class);
 
-        $repo = new Repository(new User());
+        $repo = new Repository(new User(), [], app('validator'));
 
         $repo->setValidationRules([
             'name' => ['required', 'string']
@@ -130,7 +130,7 @@ class EloquentRepositoryTest extends TestCase
     {
         $this->expectException(ValidationException::class);
 
-        $repo = new Repository(new User());
+        $repo = new Repository(new User(), [], app('validator'));
 
         $repo->setValidationRules([
             'name' => ['required', 'string']
@@ -178,7 +178,7 @@ class EloquentRepositoryTest extends TestCase
     {
         $this->expectException(ValidationException::class);
 
-        $repo = new Repository(new User());
+        $repo = new Repository(new User(), [], app('validator'));
 
         $repo->setValidationRules([], [
             'name' => ['required', 'string']
@@ -208,6 +208,29 @@ class EloquentRepositoryTest extends TestCase
         $this->assertEquals($original->getKey(), $entity->getKey());
         $this->assertEquals('male', $entity->gender);
 
+    }
+
+    public function testUpdateAllWhere()
+    {
+        $repo = new Repository(new User());
+
+        $repo->create([
+            'name'   => 'John Fiat',
+            'status' => 'denied'
+        ]);
+
+        $repo->create([
+            'name'   => 'John Porsche',
+            'status' => 'denied'
+        ]);
+
+        $repo->create([
+            'name'   => 'John Zedd',
+            'status' => 'denied'
+        ]);
+
+        $affectedRows = $repo->updateAllWhere(['status' => 'denied'], ['status' => 'accepted']);
+        $this->assertEquals(3, $affectedRows);
     }
 
     public function testUpdateWhereWithBuilder()
