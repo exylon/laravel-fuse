@@ -220,9 +220,8 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function update($id, array $data)
     {
-        $model = $this->query instanceof Builder ? $this->query->newModelInstance() : $this->query;
-        $id = $this->getRawModelId($id);
-        return $this->updateWhere([$model->getKeyName() => $id], $data);
+        $id = $this->getModelKey($id);
+        return $this->updateWhere([$this->getModelKeyName() => $id], $data);
     }
 
 
@@ -281,10 +280,8 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function delete($id)
     {
-        $model = $this->query instanceof Builder ? $this->query->newModelInstance() : $this->query;
-        $id = $this->getRawModelId($id);
-
-        return $this->deleteWhere([$model->getKeyName() => $id]);
+        $id = $this->getModelKey($id);
+        return $this->deleteWhere([$this->getModelKeyName() => $id]);
     }
 
 
@@ -314,12 +311,8 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function find($id, array $columns = array('*'))
     {
-        $this->applyRelations();
-        $model = $this->findRawModel($id, true);
-        $model = $this->applyAppends($model);
-        $this->reset();
-
-        return $this->transform($model);
+        $id = $this->getModelKey($id);
+        return $this->findBy($this->getModelKeyName(), $id);
     }
 
     /**
@@ -671,16 +664,14 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     protected function findRawModel($entity, bool $forceFresh = false, $query = null)
     {
-        if ($query === null) {
-            return $this->findRawModel($entity, $forceFresh, $this->query);
-        }
+        $query = $query ?: $this->query;
 
         $class = $query instanceof Builder ? $query->newModelInstance() : $query;
         if ($entity instanceof $class) {
             return $forceFresh ? $entity->refresh() : $entity;
         }
 
-        $entity = $this->getRawModelId($entity);
+        $entity = $this->getModelKey($entity);
 
         if (is_string($query)) {
             $query = app($query);
@@ -690,7 +681,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
             $query = $query->newInstance();
         }
 
-        return $query->findOrFail($entity);
+        return $query->where($this->getModelKeyName(), $entity)->firstOrFail();
     }
 
     /**
@@ -700,12 +691,21 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      *
      * @return mixed
      */
-    protected function getRawModelId($entity)
+    protected function getModelKey($entity)
     {
         if ($entity instanceof Entity || $entity instanceof Model) {
             return $entity->getKey();
         }
         return $entity;
+    }
+
+    protected function getModelKeyName()
+    {
+        static $keyName;
+        if (!is_null($keyName)) {
+            return $keyName;
+        }
+        return $keyName = ($this->original instanceof Builder ? $this->original->newModelInstance()->getKeyName() : $this->original->getKeyName());
     }
 
 
