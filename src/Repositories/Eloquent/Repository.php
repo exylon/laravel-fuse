@@ -4,18 +4,28 @@
 namespace Exylon\Fuse\Repositories\Eloquent;
 
 
+use Exylon\Fuse\Contracts\Appendable;
+use Exylon\Fuse\Contracts\Relatable;
+use Exylon\Fuse\Contracts\Repository as BaseRepository;
+use Exylon\Fuse\Contracts\Transformable;
+use Exylon\Fuse\Contracts\Validatable;
+use Exylon\Fuse\Contracts\WithOptions;
 use Exylon\Fuse\Repositories\Entity;
-use Illuminate\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Factory;
 use InvalidArgumentException;
 
-class Repository implements \Exylon\Fuse\Contracts\Repository
+class Repository implements BaseRepository, Appendable, Relatable, Transformable, Validatable, WithOptions
 {
+
+    use Concerns\HasAppendableAttributes,
+        Concerns\HasRelations,
+        Concerns\CanValidate,
+        Concerns\CanTransform,
+        Concerns\HasOptions;
 
     /**
      * @var \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder
@@ -25,61 +35,6 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      * @var \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder
      */
     protected $query;
-
-    /**
-     * @var array
-     */
-    protected $updateRules = [];
-
-    /**
-     * @var array
-     */
-    protected $createRules = [];
-
-    /**
-     * @var bool
-     */
-    protected $enableValidation = false;
-
-    /**
-     * @var bool
-     */
-    protected $enableTransformer = true;
-
-    /**
-     * @var \Exylon\Fuse\Contracts\Transformer
-     */
-    protected $transformer = null;
-
-    /**
-     * @var \Exylon\Fuse\Contracts\Transformer
-     */
-    protected $defaultTransformer = null;
-
-    /**
-     * @var array
-     */
-    protected $defaultOptions;
-
-    /**
-     * @var array
-     */
-    protected $options = [];
-
-    /**
-     * @var array
-     */
-    protected $appends = [];
-
-    /**
-     * @var array
-     */
-    protected $relations = [];
-
-    /**
-     * @var \Illuminate\Validation\Factory
-     */
-    protected $validator;
 
 
     /**
@@ -92,7 +47,11 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     public function __construct($model, array $options = [], Factory $validator = null)
     {
         $this->original = $model;
-        $this->validator = $validator;
+
+        if ($validator) {
+            $this->setValidator($validator);
+        }
+
         $this->reset();
         $this->setDefaultOptions($options);
     }
@@ -107,7 +66,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function all(array $columns = array('*'))
     {
-        $this->applyRelations();
+        $this->query = $this->applyRelations($this->query);
         if ($this->query instanceof Builder) {
             $results = $this->query->get($columns)->map(function ($item) {
                 $item = $this->applyAppends($item);
@@ -153,7 +112,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         $pageName = $options['page_name'];
         $method = $this->resolvePaginationMethod($options['pagination_method']);
 
-        $this->applyRelations();
+        $this->query = $this->applyRelations($this->query);
         $this->applyWhereClauses($where);
 
         $paginator = $this->query->{$method}($limit, $columns, $pageName, $page);
@@ -178,9 +137,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function create(array $attributes)
     {
-        if ($this->enableValidation && !empty($this->createRules) && $this->validator !== null) {
-            $this->validator->validate($attributes, $this->createRules);
-        }
+        $this->runCreateValidation($attributes);
 
         $model = $this->original instanceof Builder ? $this->original->newModelInstance() : $this->original->newInstance();
         $model->forceFill($attributes);
@@ -199,9 +156,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function make(array $attributes)
     {
-        if ($this->enableValidation && !empty($this->createRules) && $this->validator !== null) {
-            $this->validator->validate($attributes, $this->createRules);
-        }
+        $this->runCreateValidation($attributes);
 
         $model = $this->original instanceof Builder ? $this->original->newModelInstance() : $this->original->newInstance();
         $model->forceFill($attributes);
@@ -235,10 +190,10 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function updateWhere(array $where, array $data)
     {
-        if ($this->enableValidation && !empty($this->updateRules) && $this->validator !== null) {
-            $this->validator->validate($data, $this->updateRules);
-        }
-        $this->applyRelations();
+
+        $this->runUpdateValidation($data);
+
+        $this->query = $this->applyRelations($this->query);
         $this->applyWhereClauses($where);
         $model = $this->query->firstOrFail();
         $model->forceFill($data);
@@ -260,9 +215,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function updateAllWhere(array $where, array $data)
     {
-        if ($this->enableValidation && !empty($this->updateRules)) {
-            $this->validator->validate($data, $this->updateRules);
-        }
+        $this->runUpdateValidation($data);
 
         $this->applyWhereClauses($where);
         $updated = $this->query->update($data);
@@ -357,7 +310,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
      */
     public function findWhere(array $where, $columns = array('*'))
     {
-        $this->applyRelations();
+        $this->query = $this->applyRelations($this->query);
         $this->applyWhereClauses($where);
         $model = $this->query->firstOrFail($columns);
         $model = $this->applyAppends($model);
@@ -377,7 +330,7 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     public function findAllWhere(array $where, $columns = array('*'))
     {
 
-        $this->applyRelations();
+        $this->query = $this->applyRelations($this->query);
         $this->applyWhereClauses($where);
         $results = $this->query->get($columns)->map(function ($item) {
             $item = $this->applyAppends($item);
@@ -403,128 +356,6 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         return $ret;
     }
 
-    /**
-     * Load relations
-     *
-     * @param array|string $relations
-     *
-     * @return $this
-     */
-    public function with($relations)
-    {
-        $this->relations = array_unique(array_merge($this->relations,
-            is_string($relations) ? func_get_args() : $relations));
-        return $this;
-
-    }
-
-    /**
-     * Append attributes
-     *
-     * @param array|string $attributes
-     *
-     * @return $this
-     */
-    public function append($attributes)
-    {
-        $this->appends = array_unique(
-            array_merge($this->appends, is_string($attributes) ? func_get_args() : $attributes)
-        );
-        return $this;
-    }
-
-    /**
-     * Enables validation for create, make and update methods
-     *
-     * @return $this
-     */
-    public function withValidation()
-    {
-        $this->enableValidation = true;
-        return $this;
-    }
-
-    /**
-     * Sets the validation rules.
-     * If update rules are not provided, it will have
-     * the same value as create rules
-     *
-     * @param array      $create
-     * @param array|null $update
-     */
-    public function setValidationRules(array $create, array $update = null)
-    {
-        $this->createRules = $create;
-        if ($update) {
-            $this->updateRules = $update;
-        } else {
-            $this->updateRules = $create;
-        }
-    }
-
-
-    /**
-     * Enables the transformer. If none is provided, the default transformer will be used
-     *
-     * @param \Exylon\Fuse\Contracts\Transformer|\Closure|mixed $transformer
-     *
-     * @return $this
-     */
-    public function withTransformer($transformer)
-    {
-        if ($transformer === null) {
-            $transformer = $this->defaultTransformer;
-        }
-        $this->transformer = $transformer;
-        $this->enableTransformer = true;
-        return $this;
-    }
-
-
-    /**
-     * Disables any transformer including th default
-     *
-     * @return $this
-     */
-    public function withoutTransformer()
-    {
-        $this->enableTransformer = false;
-    }
-
-    /**
-     * Sets the default transformer
-     *
-     * @param \Exylon\Fuse\Contracts\Transformer|\Closure|mixed|null $transformer
-     */
-    public function setDefaultTransformer($transformer)
-    {
-        $this->defaultTransformer = $transformer;
-    }
-
-    /**
-     * Overrides the default settings for this repository
-     *
-     * @param array $defaultOptions
-     */
-    public function setDefaultOptions(array $defaultOptions)
-    {
-        $this->defaultOptions = $defaultOptions;
-    }
-
-
-    /**
-     * Use options
-     *
-     * @param array $options
-     *
-     * @return $this
-     */
-    public function withOptions(array $options)
-    {
-        $this->options = $options;
-        return $this;
-    }
-
 
     /**
      * Resets the query
@@ -536,122 +367,12 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         } else {
             $this->query = $this->original->newInstance();
         }
-        $this->enableValidation = false;
-        $this->options = [];
-        $this->relations = [];
-        $this->appends = [];
+        $this->resetValidation();
+        $this->resetOptions();
+        $this->resetRelations();
+        $this->resetAppends();
     }
 
-    /**
-     * Resets the transformer
-     */
-    protected function resetTransformer()
-    {
-        $this->transformer = null;
-        $this->enableTransformer = true;
-    }
-
-    /**
-     * Transform an Eloquent model into a more abstract object. By default, using Entity object
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @param array                               $metadata
-     *
-     * @return \Exylon\Fuse\Repositories\Entity|mixed
-     */
-    protected function transform(Model $model, array $metadata = [])
-    {
-        if (!empty($this->appends)) {
-            $model = $model->append($this->appends);
-        }
-
-        if ($this->enableTransformer) {
-            if (($callback = $this->getTransformerCallback($this->transformer, $this->defaultTransformer)) !== null) {
-                $result = $this->executeTransformer($callback, $model, $metadata);
-            } else {
-                $result = $this->prepareEntity($model, $metadata);
-            }
-        } else {
-            $result = $this->prepareEntity($model, $metadata);
-        }
-
-        $this->resetTransformer();
-
-        return $result;
-    }
-
-    /**
-     * Transform a Model or collection of Models into Entity objects
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     * @param array                               $metadata
-     *
-     * @return \Exylon\Fuse\Repositories\Entity
-     */
-    private function prepareEntity(Model $model, array $metadata = [])
-    {
-        $attributes = $model->attributesToArray();
-        if (!empty($metadata)) {
-            $attributes = array_merge($attributes, [
-                'meta' => $metadata
-            ]);
-        }
-        $root = new Entity($model->getKey(), $attributes);
-        foreach ($model->getRelations() as $name => $relation) {
-            if ($relation instanceof Collection) {
-                $root[$name] = $relation->map(function ($item) {
-                    return $this->prepareEntity($item);
-                });
-            } elseif ($relation instanceof Model) {
-                $root[$name] = $this->prepareEntity($relation);
-            }
-        }
-        return $root;
-    }
-
-    /**
-     * Get which transformer to use
-     *
-     * @param      $transformer
-     * @param null $defaultTransformer
-     *
-     * @return array|null
-     */
-    private function getTransformerCallback($transformer, $defaultTransformer = null)
-    {
-        if (is_callable($transformer) || is_string($transformer) || is_array($transformer)) {
-            return $transformer;
-        } elseif (is_object($transformer)) {
-            return [$transformer, 'transform'];
-        }
-        return $defaultTransformer === null ? null : $this->getTransformerCallback($defaultTransformer);
-    }
-
-    /**
-     * @param       $callback
-     * @param       $model
-     * @param array $metadata
-     *
-     * @return mixed
-     */
-    private function executeTransformer($callback, $model, array $metadata = [])
-    {
-        if (is_callable($callback)) {
-            return call_user_func($callback, $model, $metadata);
-        }
-
-        if (is_string($callback) && strpos($callback, '@') !== false) {
-            $segments = explode('@', $callback);
-            $method = count($segments) == 2
-                ? $segments[1] : 'transform';
-            return $this->executeTransformer(
-                [Container::getInstance()->make($segments[0]), $method],
-                $model,
-                $metadata);
-        }
-
-        throw new InvalidArgumentException('Invalid transformer callback');
-    }
 
     /**
      * Find raw model object from the repository
@@ -723,29 +444,6 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
     }
 
     /**
-     * Applies all added relations to the query
-     */
-    protected function applyRelations()
-    {
-        $this->query = $this->query->with($this->relations);
-    }
-
-    /**
-     * Appends additional attributes to the Eloquent model
-     *
-     * @param \Illuminate\Database\Eloquent\Model $model
-     *
-     * @return $this|\Illuminate\Database\Eloquent\Model
-     */
-    protected function applyAppends(Model &$model)
-    {
-        if (!empty($this->appends)) {
-            return $model->append($this->appends);
-        }
-        return $model;
-    }
-
-    /**
      * Apply all where clauses
      *
      * @param array $where
@@ -790,14 +488,6 @@ class Repository implements \Exylon\Fuse\Contracts\Repository
         }
     }
 
-
-    protected function getOptions()
-    {
-        return array_merge(
-            config('fuse.repository') ?: [],
-            $this->defaultOptions ?: [],
-            $this->options ?: []);
-    }
 
     protected function resolvePaginationMethod($method)
     {
