@@ -188,4 +188,34 @@ class SupportHelperTest extends TestCase
 
         self::assertTrue(has_trait(Customer::class, CascadeDelete::class));
     }
+
+    public function testArrOnly()
+    {
+        $arr = [
+            'one' => [
+                'alpha' => 'a',
+                'beta'  => 'b'
+            ],
+            'two' => 'c',
+        ];
+        $only = Arr::only($arr, [
+            'one.alpha'
+        ]);
+        $this->assertEquals([
+            'one' => [
+                'alpha' => 'a'
+            ]
+        ], $only);
+
+        $only = Arr::only($arr, [
+            'one.alpha',
+            'two'
+        ]);
+        $this->assertEquals([
+            'one' => [
+                'alpha' => 'a'
+            ],
+            'two' => 'c'
+        ], $only);
+    }
 }

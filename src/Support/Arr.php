@@ -38,4 +38,16 @@ class Arr extends \Illuminate\Support\Arr
 
         return $results;
     }
+
+    public static function only($array, $keys)
+    {
+        $keys = self::wrap($keys);
+        $arr = [];
+        foreach ($keys as $key) {
+            $arr[$key] = self::get($array, $key);
+        }
+
+        return self::dotReverse($arr);
+
+    }
 }
