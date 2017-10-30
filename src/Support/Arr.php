@@ -4,7 +4,7 @@
 namespace Exylon\Fuse\Support;
 
 
-class Arr
+class Arr extends \Illuminate\Support\Arr
 {
 
     public static function dotReverse(array $array)
