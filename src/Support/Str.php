@@ -4,7 +4,7 @@
 namespace Exylon\Fuse\Support;
 
 
-class Str
+class Str extends \Illuminate\Support\Str
 {
     /**
      * @param array $pairs
