@@ -29,7 +29,7 @@ if (!function_exists('validate')) {
     {
         Illuminate\Support\Facades\Validator::validate($data, $rules, $messages, $customAttributes);
 
-        return array_only($data, collect($rules)->keys()->map(function ($rule) {
+        return Illuminate\Support\Arr::only($data, collect($rules)->keys()->map(function ($rule) {
             return str_contains($rule, '.') ? explode('.', $rule)[0] : $rule;
         })->unique()->toArray());
     }

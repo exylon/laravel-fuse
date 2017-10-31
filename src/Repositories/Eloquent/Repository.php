@@ -471,7 +471,10 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
                 if (empty($options['method']) && isset($options['operation'])) {
                     $parameters[] = $options['operation'];
                 }
-                $parameters[] = $options['parameters'];
+
+                if (!empty($options['parameters'])) {
+                    $parameters[] = array_merge($parameters, Arr::wrap($options['parameters']));
+                }
 
                 $this->query = call_user_func_array([
                     $this->query,
