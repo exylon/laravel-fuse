@@ -142,6 +142,7 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
         $model = $this->original instanceof Builder ? $this->original->newModelInstance() : $this->original->newInstance();
         $model->forceFill($attributes);
         $model->save();
+        $model->refresh();
         $this->reset();
 
         return $this->transform($model);
@@ -198,6 +199,7 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
         $model = $this->query->firstOrFail();
         $model->forceFill($data);
         $model->save();
+        $model->refresh();
         $model = $this->applyAppends($model);
         $this->reset();
 
