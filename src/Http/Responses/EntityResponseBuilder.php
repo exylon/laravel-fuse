@@ -158,4 +158,24 @@ class EntityResponseBuilder implements Responsable
         $this->view = view($name, $data, $mergeData);
         return $this;
     }
+
+    /**
+     * @param       $route
+     * @param array $parameters
+     * @param int   $status
+     * @param array $headers
+     *
+     * @return $this
+     */
+    public function withRedirectRoute($route, $parameters = [], $status = 302, $headers = [])
+    {
+        $this->httpResponse = redirect()->route($route, $parameters, $status, $headers);
+        return $this;
+    }
+
+    public function withRedirectAction($action, $parameters = [], $status = 302, $headers = [])
+    {
+        $this->httpResponse = redirect()->action($action, $parameters, $status, $headers);
+        return $this;
+    }
 }
