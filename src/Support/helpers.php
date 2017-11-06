@@ -113,3 +113,20 @@ if (!function_exists('has_trait')) {
     }
 }
 
+if (!function_exists('entity')) {
+    /**
+     * Creates an entity response
+     *
+     * @param       $entity
+     * @param int   $status
+     * @param array $headers
+     * @param int   $options
+     *
+     * @return \Exylon\Fuse\Http\Responses\EntityResponseBuilder
+     */
+    function entity($entity, $status = 200, array $headers = [], int $options = 0)
+    {
+        return new \Exylon\Fuse\Http\Responses\EntityResponseBuilder($entity, $status, $headers, $options);
+    }
+}
+
