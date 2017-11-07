@@ -475,7 +475,14 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
                 }
 
                 if (!empty($options['parameters'])) {
-                    $parameters[] = array_merge($parameters, Arr::wrap($options['parameters']));
+                    //
+                    // Special scenario since between's parameters should be add as raw
+                    //
+                    if (Str::lower($options['method']) === 'between') {
+                        $parameters = array_merge($parameters, [$options['parameters']]);
+                    } else {
+                        $parameters = array_merge($parameters, Arr::wrap($options['parameters']));
+                    }
                 }
 
                 $this->query = call_user_func_array([
@@ -483,6 +490,7 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
                     ($orWhere ? 'orWhere' : 'where') . title_case($options['method'])
                 ], $parameters);
             } elseif (is_array($value)) {
+
                 $this->query = call_user_func_array([
                     $this->query,
                     ($orWhere ? 'orWhere' : 'where')
