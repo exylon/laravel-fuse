@@ -8,6 +8,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Contracts\Support\Jsonable;
 use Illuminate\Contracts\Support\Responsable;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Arr;
 use JsonSerializable;
 
 class EntityResponseBuilder implements Responsable
@@ -50,6 +51,16 @@ class EntityResponseBuilder implements Responsable
      * @var \Illuminate\Contracts\View\Factory
      */
     private $view;
+
+    /**
+     * @var array
+     */
+    private $except;
+
+    /**
+     * @var array
+     */
+    private $only;
 
     public function __construct($entity, $status = 200, array $headers = [], int $options = 0)
     {
@@ -97,14 +108,25 @@ class EntityResponseBuilder implements Responsable
     {
         if (is_null($entity)) {
             return [];
+        } elseif ($entity instanceof Arrayable) {
+            return $this->transformArray($entity->toArray());
+        } elseif ($entity instanceof Jsonable) {
+            return $this->transformArray(json_decode($entity->toJson(), true));
         } elseif ($entity instanceof JsonSerializable) {
             return $entity->jsonSerialize();
-        } elseif ($entity instanceof Jsonable) {
-            return json_decode($entity->toJson(), true);
-        } elseif ($entity instanceof Arrayable) {
-            return $entity->toArray();
         } else {
             return $entity;
+        }
+    }
+
+    private function transformArray(array $arr)
+    {
+        if (!empty($this->except)) {
+            return Arr::except($arr, $this->except);
+        } elseif (!empty($this->only)) {
+            return Arr::only($arr, $this->except);
+        } else {
+            return $arr;
         }
     }
 
@@ -173,9 +195,29 @@ class EntityResponseBuilder implements Responsable
         return $this;
     }
 
+    /**
+     * @param       $action
+     * @param array $parameters
+     * @param int   $status
+     * @param array $headers
+     *
+     * @return $this
+     */
     public function withRedirectAction($action, $parameters = [], $status = 302, $headers = [])
     {
         $this->httpResponse = redirect()->action($action, $parameters, $status, $headers);
+        return $this;
+    }
+
+    public function except(array $except)
+    {
+        $this->except = $except ?: [];
+        return $this;
+    }
+
+    public function only(array $only)
+    {
+        $this->only = $only;
         return $this;
     }
 }
