@@ -30,14 +30,14 @@ interface Repository
     /**
      * Returns a chunk of entities given the set of conditions
      *
-     * @param array $where
+     * @param array|callable $where
      * @param int   $limit
      * @param null  $page
      * @param array $columns
      *
      * @return mixed
      */
-    public function paginateWhere(array $where, int $limit, $page = null, array $columns = array('*'));
+    public function paginateWhere($where, int $limit, $page = null, array $columns = array('*'));
 
     /**
      * Creates and persists an entity
@@ -70,22 +70,22 @@ interface Repository
     /**
      * Find and update an entity
      *
-     * @param array $where
+     * @param array|callable $where
      * @param array $data
      *
      * @return mixed
      */
-    public function updateWhere(array $where, array $data);
+    public function updateWhere($where, array $data);
 
     /**
      * Find and update all matching entities. Returns the number of affected rows
      *
-     * @param array $where
+     * @param array|callable $where
      * @param array $data
      *
      * @return int
      */
-    public function updateAllWhere(array $where, array $data);
+    public function updateAllWhere($where, array $data);
 
     /**
      * Deletes an entity from the repository
@@ -99,11 +99,11 @@ interface Repository
     /**
      * Find and delete an entity
      *
-     * @param array $where
+     * @param array|callable $where
      *
      * @return boolean
      */
-    public function deleteWhere(array $where);
+    public function deleteWhere($where);
 
     /**
      * Find entity by id
@@ -142,30 +142,30 @@ interface Repository
     /**
      * Find entity by where clauses
      *
-     * @param array $where
+     * @param array|callable $where
      * @param array $columns
      *
      * @return mixed
      */
-    public function findWhere(array $where, $columns = array('*'));
+    public function findWhere($where, $columns = array('*'));
 
     /**
      * Find entities by where clauses
      *
-     * @param array $where
+     * @param array|callable $where
      * @param array $columns
      *
      * @return mixed
      */
-    public function findAllWhere(array $where, $columns = array('*'));
+    public function findAllWhere($where, $columns = array('*'));
 
     /**
      * Checks whether an entity exists from the repository
      *
-     * @param array $where
+     * @param array|callable $where
      *
      * @return boolean
      */
-    public function exists(array $where);
+    public function exists($where);
 
 }

@@ -99,14 +99,14 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
     /**
      * Returns a chunk of entities given the set of conditions
      *
-     * @param array $where
+     * @param array|callable $where
      * @param int   $limit
      * @param null  $page
      * @param array $columns
      *
      * @return mixed
      */
-    public function paginateWhere(array $where, int $limit, $page = null, array $columns = array('*'))
+    public function paginateWhere($where, int $limit, $page = null, array $columns = array('*'))
     {
         $options = $this->getOptions();
         $pageName = $options['page_name'];
@@ -184,12 +184,12 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
     /**
      * Find and update an entity
      *
-     * @param array $where
+     * @param array|callable $where
      * @param array $data
      *
      * @return mixed
      */
-    public function updateWhere(array $where, array $data)
+    public function updateWhere($where, array $data)
     {
 
         $this->runUpdateValidation($data);
@@ -210,12 +210,12 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
     /**
      * Find and update all matching entities.
      *
-     * @param array $where
+     * @param array|callable $where
      * @param array $data
      *
      * @return int
      */
-    public function updateAllWhere(array $where, array $data)
+    public function updateAllWhere($where, array $data)
     {
         $this->runUpdateValidation($data);
 
@@ -243,11 +243,11 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
     /**
      * Find and delete an entity
      *
-     * @param array $where
+     * @param array|callable $where
      *
      * @return boolean
      */
-    public function deleteWhere(array $where)
+    public function deleteWhere($where)
     {
         $this->applyWhereClauses($where);
         $model = $this->query->firstOrFail();
@@ -305,12 +305,12 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
     /**
      * Find entity by where clauses
      *
-     * @param array $where
+     * @param array|callable $where
      * @param array $columns
      *
      * @return mixed
      */
-    public function findWhere(array $where, $columns = array('*'))
+    public function findWhere($where, $columns = array('*'))
     {
         $this->query = $this->applyRelations($this->query);
         $this->applyWhereClauses($where);
@@ -324,12 +324,12 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
     /**
      * Find entities by where clauses
      *
-     * @param array $where
+     * @param array|callable $where
      * @param array $columns
      *
      * @return mixed
      */
-    public function findAllWhere(array $where, $columns = array('*'))
+    public function findAllWhere($where, $columns = array('*'))
     {
 
         $this->query = $this->applyRelations($this->query);
@@ -346,11 +346,11 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
     /**
      * Checks whether an entity exists from the repository
      *
-     * @param array $where
+     * @param array|callable $where
      *
      * @return boolean
      */
-    public function exists(array $where)
+    public function exists($where)
     {
         $this->applyWhereClauses($where);
         $ret = $this->query->exists();
@@ -448,13 +448,18 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
     /**
      * Apply all where clauses
      *
-     * @param array $where
-     * @param bool  $required
+     * @param array|callable $where
+     * @param bool           $required
      */
-    protected function applyWhereClauses(array $where, bool $required = false)
+    protected function applyWhereClauses($where, bool $required = false)
     {
         if ($required && empty($where)) {
             throw new InvalidArgumentException('Empty "where" clauses');
+        }
+
+        if (is_callable($where)) {
+            $where($this->query);
+            return;
         }
 
         foreach ($where as $field => $value) {

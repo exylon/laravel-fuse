@@ -709,6 +709,27 @@ class EloquentRepositoryTest extends TestCase
         $this->assertTrue($results->hasMorePages());
     }
 
+    public function testCallableWhere()
+    {
+        $repo = new Repository(new User());
+
+        $repo->create([
+            'name' => 'Mike Doner'
+        ]);
+        $repo->create([
+            'name' => 'Mike Kasmer'
+        ]);
+        $repo->create([
+            'name' => 'Mike Hyde'
+        ]);
+        $results = $repo->findAllWhere(function ($query){
+            $query->where('name','like','Mike%');
+        });
+        $this->assertInstanceOf(Collection::class, $results);
+        $this->assertInstanceOf(Entity::class, $results->first());
+        $this->assertCount(3, $results);
+    }
+
     public function testComplexWhere()
     {
         $repo = new Repository(new User());
