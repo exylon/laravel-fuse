@@ -607,7 +607,9 @@ class EloquentRepositoryTest extends TestCase
         $this->assertTrue($repo->exists([
             'name' => 'John Carter'
         ]));
-
+        $this->assertTrue($repo->exists(function ($query){
+            $query->where('name','John Carter');
+        }));
 
         $repo->deleteWhere([
             'name' => 'John Jackson'
