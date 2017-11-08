@@ -100,9 +100,9 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
      * Returns a chunk of entities given the set of conditions
      *
      * @param array|callable $where
-     * @param int   $limit
-     * @param null  $page
-     * @param array $columns
+     * @param int            $limit
+     * @param null           $page
+     * @param array          $columns
      *
      * @return mixed
      */
@@ -185,7 +185,7 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
      * Find and update an entity
      *
      * @param array|callable $where
-     * @param array $data
+     * @param array          $data
      *
      * @return mixed
      */
@@ -211,7 +211,7 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
      * Find and update all matching entities.
      *
      * @param array|callable $where
-     * @param array $data
+     * @param array          $data
      *
      * @return int
      */
@@ -306,7 +306,7 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
      * Find entity by where clauses
      *
      * @param array|callable $where
-     * @param array $columns
+     * @param array          $columns
      *
      * @return mixed
      */
@@ -325,7 +325,7 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
      * Find entities by where clauses
      *
      * @param array|callable $where
-     * @param array $columns
+     * @param array          $columns
      *
      * @return mixed
      */
@@ -458,6 +458,9 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
         }
 
         if (is_callable($where)) {
+            if ($this->query instanceof Model) {
+                $this->query = $this->query->newQuery();
+            }
             $where($this->query);
             return;
         }
