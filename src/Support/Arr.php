@@ -40,7 +40,7 @@ class Arr extends \Illuminate\Support\Arr
     }
 
     /**
-     * Override of only to support dot notation
+     * Overridden function to support dot notation
      *
      * @param array        $array
      * @param array|string $keys
@@ -59,6 +59,17 @@ class Arr extends \Illuminate\Support\Arr
 
     }
 
+    /**
+     * Checking if the key exists and not empty.
+     *
+     * Note that this function evaluates based on
+     * `empty()` (@link http://php.net/manual/en/function.empty.php) function
+     *
+     * @param $array
+     * @param $key
+     *
+     * @return bool
+     */
     public static function filled($array, $key)
     {
         return self::has($array, $key) && !empty(self::get($array, $key));
