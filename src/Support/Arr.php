@@ -39,6 +39,14 @@ class Arr extends \Illuminate\Support\Arr
         return $results;
     }
 
+    /**
+     * Override of only to support dot notation
+     *
+     * @param array        $array
+     * @param array|string $keys
+     *
+     * @return array
+     */
     public static function only($array, $keys)
     {
         $keys = self::wrap($keys);
@@ -49,5 +57,10 @@ class Arr extends \Illuminate\Support\Arr
 
         return self::dotReverse($arr);
 
+    }
+
+    public static function filled($array, $key)
+    {
+        return self::has($array, $key) && !empty(self::get($array, $key));
     }
 }

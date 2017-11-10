@@ -218,4 +218,17 @@ class SupportHelperTest extends TestCase
             'two' => 'c'
         ], $only);
     }
+
+    public function testArrFilled()
+    {
+        $arr = [
+            'alpha' => [
+                'beta'    => null,
+                'charlie' => 'test'
+            ]
+        ];
+
+        $this->assertFalse(Arr::filled($arr, 'alpha.beta'));
+        $this->assertTrue(Arr::filled($arr, 'alpha.charlie'));
+    }
 }
