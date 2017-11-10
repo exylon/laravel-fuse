@@ -211,12 +211,28 @@ class EntityResponseBuilder implements Responsable
         return $this;
     }
 
+    public function withRedirectTo($to, $status = 302, $headers = [], $secure = null)
+    {
+        $this->httpResponse = redirect()->to($to, $status, $headers, $secure);
+        return $this;
+    }
+
+    /**
+     * @param array $except
+     *
+     * @return $this
+     */
     public function except(array $except)
     {
         $this->except = $except ?: [];
         return $this;
     }
 
+    /**
+     * @param array $only
+     *
+     * @return $this
+     */
     public function only(array $only)
     {
         $this->only = $only;
