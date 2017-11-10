@@ -108,6 +108,8 @@ class EntityResponseBuilder implements Responsable
     {
         if (is_null($entity)) {
             return [];
+        } elseif (is_array($entity)) {
+            return $this->transformArray($entity);
         } elseif ($entity instanceof Arrayable) {
             return $this->transformArray($entity->toArray());
         } elseif ($entity instanceof Jsonable) {
@@ -124,7 +126,7 @@ class EntityResponseBuilder implements Responsable
         if (!empty($this->except)) {
             return Arr::except($arr, $this->except);
         } elseif (!empty($this->only)) {
-            return Arr::only($arr, $this->except);
+            return Arr::only($arr, $this->only);
         } else {
             return $arr;
         }
