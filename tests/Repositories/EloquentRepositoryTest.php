@@ -123,6 +123,9 @@ class EloquentRepositoryTest extends TestCase
         $this->assertInstanceOf(Entity::class, $entity);
         $this->assertEquals('John Baker', $entity->name);
         $this->assertNull($entity->getKey());
+        $this->assertDatabaseMissing('users', [
+            'name' => 'John Baker'
+        ]);
 
     }
 
@@ -607,8 +610,8 @@ class EloquentRepositoryTest extends TestCase
         $this->assertTrue($repo->exists([
             'name' => 'John Carter'
         ]));
-        $this->assertTrue($repo->exists(function ($query){
-            $query->where('name','John Carter');
+        $this->assertTrue($repo->exists(function ($query) {
+            $query->where('name', 'John Carter');
         }));
 
         $repo->deleteWhere([
@@ -724,8 +727,8 @@ class EloquentRepositoryTest extends TestCase
         $repo->create([
             'name' => 'Mike Hyde'
         ]);
-        $results = $repo->findAllWhere(function ($query){
-            $query->where('name','like','Mike%');
+        $results = $repo->findAllWhere(function ($query) {
+            $query->where('name', 'like', 'Mike%');
         });
         $this->assertInstanceOf(Collection::class, $results);
         $this->assertInstanceOf(Entity::class, $results->first());
