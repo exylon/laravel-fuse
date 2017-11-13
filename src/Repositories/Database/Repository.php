@@ -5,17 +5,21 @@ namespace Exylon\Fuse\Repositories\Database;
 
 
 use Carbon\Carbon;
+use Exylon\Fuse\Contracts\Appendable;
+use Exylon\Fuse\Contracts\Relatable;
 use Exylon\Fuse\Contracts\Repository as BaseRepository;
 use Exylon\Fuse\Contracts\Transformable;
 use Exylon\Fuse\Contracts\WithOptions;
-use Exylon\Fuse\Repositories\Database\Concerns\CanTransform;
-use Exylon\Fuse\Repositories\Database\Concerns\HasOptions;
 use Exylon\Fuse\Support\Arr;
 
-class Repository implements BaseRepository, Transformable, WithOptions
+class Repository implements BaseRepository, Transformable, WithOptions, Relatable, Appendable
 {
 
-    use CanTransform, HasOptions;
+    use Concerns\CanTransform,
+        Concerns\HasOptions,
+        Concerns\HasRelations,
+        Concerns\HasAppendableAttributes;
+
     /**
      * @var \Illuminate\Database\DatabaseManager
      */
@@ -27,11 +31,11 @@ class Repository implements BaseRepository, Transformable, WithOptions
     /**
      * @var string
      */
-    private $primaryKeyName;
+    protected $primaryKeyName;
     /**
      * @var bool
      */
-    private $withTimestamps;
+    protected $withTimestamps;
 
     public function __construct(string $tableName, string $primaryKeyName = 'id', bool $withTimestamps = true)
     {
@@ -50,10 +54,15 @@ class Repository implements BaseRepository, Transformable, WithOptions
      */
     public function all(array $columns = array('*'))
     {
-        $results = $this->db->table($this->tableName)->get($columns)->map(function ($item) {
-            return $this->transform((array)$item);
+        $rawResults = $this->db->table($this->tableName)->get($columns)->map(function ($item) {
+            $item = (array)$item;
+            $this->applyAppends($item);
+            return $item;
         });
-        return $results;
+        $result = $this->applyRelations($rawResults)->map(function ($item) {
+            return $this->transform($item);
+        });
+        return $result;
     }
 
     /**
@@ -270,5 +279,12 @@ class Repository implements BaseRepository, Transformable, WithOptions
         }
     }
 
-
+    /**
+     * Resets the repository
+     */
+    protected function reset()
+    {
+        $this->resetAppends();
+        $this->resetRelations();
+    }
 }
