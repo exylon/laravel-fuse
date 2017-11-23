@@ -7,6 +7,7 @@ namespace Exylon\Fuse\Repositories\Eloquent;
 use Exylon\Fuse\Contracts\Appendable;
 use Exylon\Fuse\Contracts\Relatable;
 use Exylon\Fuse\Contracts\Repository as BaseRepository;
+use Exylon\Fuse\Contracts\Sortable;
 use Exylon\Fuse\Contracts\Transformable;
 use Exylon\Fuse\Contracts\Validatable;
 use Exylon\Fuse\Contracts\WithOptions;
@@ -18,14 +19,15 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\Factory;
 use InvalidArgumentException;
 
-class Repository implements BaseRepository, Appendable, Relatable, Transformable, Validatable, WithOptions
+class Repository implements BaseRepository, Appendable, Relatable, Transformable, Validatable, WithOptions, Sortable
 {
 
     use Concerns\HasAppendableAttributes,
         Concerns\HasRelations,
         Concerns\CanValidate,
         Concerns\CanTransform,
-        Concerns\HasOptions;
+        Concerns\HasOptions,
+        Concerns\CanBeSorted;
 
     /**
      * @var \Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder
@@ -67,6 +69,8 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
     public function all(array $columns = array('*'))
     {
         $this->query = $this->applyRelations($this->query);
+        $this->query = $this->applySort($this->query);
+
         if ($this->query instanceof Builder) {
             $results = $this->query->get($columns)->map(function ($item) {
                 $item = $this->applyAppends($item);
@@ -113,6 +117,7 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
         $method = $this->resolvePaginationMethod($options['pagination_method']);
 
         $this->query = $this->applyRelations($this->query);
+        $this->query = $this->applySort($this->query);
         $this->applyWhereClauses($where);
 
         $paginator = $this->query->{$method}($limit, $columns, $pageName, $page);
@@ -333,6 +338,7 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
     {
 
         $this->query = $this->applyRelations($this->query);
+        $this->query = $this->applySort($this->query);
         $this->applyWhereClauses($where);
         $results = $this->query->get($columns)->map(function ($item) {
             $item = $this->applyAppends($item);
@@ -373,6 +379,7 @@ class Repository implements BaseRepository, Appendable, Relatable, Transformable
         $this->resetOptions();
         $this->resetRelations();
         $this->resetAppends();
+        $this->resetSort();
     }
 
 

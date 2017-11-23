@@ -37,6 +37,9 @@ class EloquentRepositoryTest extends TestCase
         $this->assertInstanceOf(Entity::class, $results->first());
         $this->assertEquals(1, $results->first()->getKey());
 
+        $sorted = $results->sortBy('name')->values();
+        $this->assertEquals($sorted, $repo->orderBy('name')->all());
+
         $results = $repo->with('avatars')->all();
         $this->assertInstanceOf(Collection::class, $results);
         $this->assertInstanceOf(Entity::class, $results->first());
@@ -489,6 +492,10 @@ class EloquentRepositoryTest extends TestCase
 
 
         $results = $repo->append('gender')->findAllBy('name', 'John Andersen');
+
+        $sorted = $results->sortBy('name')->values();
+        $this->assertEquals($sorted, $repo->append('gender')->orderBy('name')->findAllBy('name', 'John Andersen'));
+
         $this->assertInstanceOf(Collection::class, $results);
         $this->assertInstanceOf(Entity::class, $results->first());
         $this->assertEquals($original->getKey(), $results->first()->getKey());
@@ -510,6 +517,10 @@ class EloquentRepositoryTest extends TestCase
 
 
         $results = $repo->findAllBy('name', 'John Andersen');
+
+        $sorted = $results->sortBy('name')->values();
+        $this->assertEquals($sorted, $repo->orderBy('name')->findAllBy('name', 'John Andersen'));
+
         $this->assertInstanceOf(Collection::class, $results);
         $this->assertInstanceOf(Entity::class, $results->first());
         $this->assertEquals($original->getKey(), $results->first()->getKey());
@@ -566,6 +577,13 @@ class EloquentRepositoryTest extends TestCase
         $results = $repo->append('gender')->findAllWhere([
             'name' => 'John Hensley'
         ]);
+
+
+        $sorted = $results->sortBy('name')->values();
+        $this->assertEquals($sorted, $repo->orderBy('name')->append('gender')->findAllWhere([
+            'name' => 'John Hensley'
+        ]));
+
         $this->assertInstanceOf(Collection::class, $results);
         $this->assertInstanceOf(Entity::class, $results->first());
         $this->assertEquals($original->getKey(), $results->first()->getKey());
@@ -607,8 +625,8 @@ class EloquentRepositoryTest extends TestCase
         $this->assertTrue($repo->exists([
             'name' => 'John Carter'
         ]));
-        $this->assertTrue($repo->exists(function ($query){
-            $query->where('name','John Carter');
+        $this->assertTrue($repo->exists(function ($query) {
+            $query->where('name', 'John Carter');
         }));
 
         $repo->deleteWhere([
@@ -664,22 +682,22 @@ class EloquentRepositoryTest extends TestCase
 
         for ($i = 0; $i < $count; $i++) {
             $repo->create([
-                'name' => 'Maximilian'
+                'name' => 'Maximilian' . random_int(0, 10)
             ]);
         }
 
-        $results = $repo->paginate(1);
+        $results = $repo->paginateWhere(function ($q) {
+            $q->where('name','like', 'Maximilian%');
+        }, $count);
         $this->assertInstanceOf(LengthAwarePaginator::class, $results);
-        $this->assertCount(1, $results->getCollection());
+        $this->assertCount($count, $results->getCollection());
         $this->assertInstanceOf(Entity::class, $results->getCollection()->first());
-        $this->assertTrue($results->hasMorePages());
+        $this->assertFalse($results->hasMorePages());
 
-
-        $results = $repo->paginateWhere([
-            'name' => 'Maximilian'
-        ], 1);
-        $this->assertEquals($count, $results->total());
-        $this->assertTrue($results->hasMorePages());
+        $sorted = $results->getCollection()->sortBy('name')->values();
+        $this->assertEquals($sorted, $repo->orderBy('name')->paginateWhere(function ($q) {
+            $q->where('name','like', 'Maximilian%');
+        }, $count)->getCollection());
     }
 
     public function testSimplePaginate()
@@ -724,8 +742,8 @@ class EloquentRepositoryTest extends TestCase
         $repo->create([
             'name' => 'Mike Hyde'
         ]);
-        $results = $repo->findAllWhere(function ($query){
-            $query->where('name','like','Mike%');
+        $results = $repo->findAllWhere(function ($query) {
+            $query->where('name', 'like', 'Mike%');
         });
         $this->assertInstanceOf(Collection::class, $results);
         $this->assertInstanceOf(Entity::class, $results->first());
